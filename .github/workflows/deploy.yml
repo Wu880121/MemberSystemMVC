@@ -64,7 +64,7 @@ jobs:
           host: ${{ secrets.AWS_EC2_HOST }}
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-          source: "./nginx/default.local.conf"
+          source: "./nginx/default.conf"
           target: "/home/ec2-user/shopping-cart/nginx/default.conf"
 
       - name: 🚢 SSH 連線部署到 AWS EC2
