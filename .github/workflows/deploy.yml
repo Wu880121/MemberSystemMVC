@@ -70,14 +70,25 @@ jobs:
               sudo rm -r /home/ec2-user/shopping-cart/nginx/default.conf
             fi
 
+      - name: 🔍 Debug - 檢查檔案存在
+        run: |
+          echo "目前目錄："
+          pwd
+          echo "列出專案根目錄："
+          ls -l
+          echo "列出 ./nginx："
+          ls -l ./nginx || echo "(找不到 ./nginx 資料夾！)"
+          echo "如果存在，檔案內容："
+          [ -f ./nginx/default.conf ] && cat ./nginx/default.conf || echo "(./nginx/default.conf 檔案不存在
+
       - name: 📦 上傳 default.conf 到 EC2
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.AWS_EC2_HOST }}
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-          source: "./nginx/default.conf"
-          target: "/home/ec2-user/shopping-cart/nginx/default.conf"
+          source: "./nginx"
+          target: "/home/***/shopping-cart/nginx"
 
       - name: 🚢 SSH 連線部署到 AWS EC2
         uses: appleboy/ssh-action@master
