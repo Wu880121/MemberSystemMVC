@@ -57,7 +57,6 @@ jobs:
 
       - name: 🚀 建置並推送映像檔到 Docker Hub
         run: |
-          cd ./shopping-cart
           docker build -t my-mvc-php-app .
           docker tag my-mvc-php-app ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
