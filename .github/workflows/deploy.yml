@@ -13,6 +13,15 @@ jobs:
       - name: ✅ Checkout 最新程式碼
         uses: actions/checkout@v3
 
+      - name: 🔐 SSH 登入 EC2 並測試
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AWS_EC2_HOST }}
+          username: ${{ secrets.AWS_EC2_USER }}
+          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+          script: |
+            echo "✅ 成功登入 EC2"
+
       - name: 🔐 解碼 SSH 金鑰
         run: |
           mkdir -p ~/.ssh
@@ -20,77 +29,77 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.AWS_EC2_HOST }} >> ~/.ssh/known_hosts
 
-      - name: 👀 顯示 SSH 金鑰權限與前 5 行
+      - name: 👀 顯示 SSH 金鑰檔案權限與內容（前 5 行）
         run: |
           ls -l ~/.ssh
           head -5 ~/.ssh/id_rsa
 
-      - name: 🥪 測試 SSH 連線
+      - name: 🧪 測試 SSH 連線
         run: |
-          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.AWS_EC2_USER }}@${{ secrets.AWS_EC2_HOST }} "echo '✅ 成功連線到 EC2！'"
+          ssh -vvv -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.AWS_EC2_USER }}@${{ secrets.AWS_EC2_HOST }} "echo '✅ 成功連線到 EC2！'"
 
       - name: 🔐 Docker 登入
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      - name: 🚀 建立並推送普通最新的 Docker 影像
+      - name: 🧹 建立並設定 EC2 的專案資料夾（含權限）
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AWS_EC2_HOST }}
+          username: ${{ secrets.AWS_EC2_USER }}
+          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+          script: |
+            echo "📁 建立 shopping-cart 專案資料夾（如果不存在就建立）"
+            sudo mkdir -p /home/ec2-user/shopping-cart
+            sudo chown -R ec2-user:ec2-user /home/ec2-user/shopping-cart
+            sudo chmod -R 755 /home/ec2-user/shopping-cart
+            echo "✅ shopping-cart 資料夾建立完成，權限設定完畢"
+
+      - name: 🚀 建置並推送映像檔到 Docker Hub
         run: |
+          cd ./shopping-cart
           docker build -t my-mvc-php-app .
           docker tag my-mvc-php-app ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
 
-      - name: 🪜 修正 nginx 資料夾與 default.conf 錯誤狀態
+      - name: 🚢 SSH 連線部署到 AWS EC2
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.AWS_EC2_HOST }}
           username: ${{ secrets.AWS_EC2_USER }}
-          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }} # <--- 這裡一定要用 key_path！！
           script: |
-            echo "🔍 檢查 default.conf 是否為資料夾"
-            if [ -d /home/ec2-user/shopping-cart/nginx/default.conf ]; then
-              echo "⚠️ 刪除錯誤的 default.conf 資料夾"
-              rm -rf /home/ec2-user/shopping-cart/nginx/default.conf
-            fi
-            echo "📁 確保 nginx 資料夾存在"
-            mkdir -p /home/ec2-user/shopping-cart/nginx
 
-      - name: 📦 上傳 default.conf 至 EC2
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.AWS_EC2_HOST }}
-          username: ${{ secrets.AWS_EC2_USER }}
-          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-          source: "./nginx/default.conf"
-          target: "/home/ec2-user/shopping-cart/nginx/"
-
-      - name: 🚢 SSH 連線部署至 AWS EC2
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.AWS_EC2_HOST }}
-          username: ${{ secrets.AWS_EC2_USER }}
-          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-          script: |
             sudo systemctl start docker
             set -x
-
-            echo "🔐 Docker 登入"
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
             docker pull ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
 
-            echo "🚩 停止與刪除舊容器"
+            echo "🛑 停止並刪除舊容器..."
             docker stop my-mvc-php-app nginx_server || true
             docker rm my-mvc-php-app nginx_server || true
 
-            echo "🧹 清除 8000 port 使用情況"
-            containers=$(docker ps -a --filter "publish=8000" -q)
-            [ -n "$containers" ] && docker rm -f $containers || true
-            pid=$(lsof -t -i :8000 || true)
-            [ -n "$pid" ] && kill -9 $pid || true
+            echo "🛑 嘗試移除舊容器..."
+            docker stop my-mvc-php-app || true
+            docker rm my-mvc-php-app || true
 
-            echo "🌐 建立 Docker 網路"
+            echo "🧹 嘗試清除佔用 8000 port 的容器與進程（如果有）"
+            containers=$(docker ps -a --filter "publish=8000" -q)
+            if [ -n "$containers" ]; then
+              echo "⚠️ 發現佔用 port 8000 的容器：$containers，強制移除"
+              docker rm -f $containers || true
+            fi
+
+            pid=$(lsof -t -i :8000 || true)
+            if [ -n "$pid" ]; then
+              echo "⚠️ 發現有進程佔用 8000：PID $pid，強制 kill"
+              kill -9 $pid || true
+            fi
+
+            echo "🌐 建立 Docker 專用網路（如尚未存在）"
             docker network inspect my-net >/dev/null 2>&1 || docker network create my-net
 
-            echo "🐐 啟動 PHP-FPM"
+            echo "🐘 啟動 PHP-FPM 容器（不對外開放）"
             docker run -d --name my-mvc-php-app \
               --network my-net \
               -e DB_HOST=${{ secrets.DB_HOST }} \
@@ -99,7 +108,7 @@ jobs:
               -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
               ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
 
-            echo "🌐 啟動 Nginx"
+            echo "🌐 啟動 Nginx 伺服器（對外開放 8000）"
             docker run -d --name nginx_server \
               --network my-net \
               -p 8000:80 \
@@ -107,13 +116,11 @@ jobs:
               -v /home/ec2-user/shopping-cart/public:/var/www/html \
               nginx
 
-            echo "✅ 部署完成"
+            echo "✅ 部署完成，確認 Nginx 正常啟動"
             sleep 5
             docker ps
+                echo "✅ 成功部署後你可以瀏覽："
+                echo "👉 http://${{ secrets.AWS_EC2_HOST }}:8000"
 
-            if docker ps -q -f name=nginx_server > /dev/null; then
-              echo "🔍 確認 fastcgi_pass 設定"
-              docker exec nginx_server grep fastcgi_pass /etc/nginx/conf.d/default.conf
-            else
-              echo "⚠️ Nginx 未成功啟動"
-            fi
+            echo "🔍 確認 Nginx 容器實際使用的 default.conf 設定（fastcgi_pass）"
+            docker exec nginx_server grep fastcgi_pass /etc/nginx/conf.d/default.conf
