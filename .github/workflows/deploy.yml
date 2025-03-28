@@ -79,7 +79,11 @@ jobs:
           echo "列出 ./nginx："
           ls -l ./nginx || echo "(找不到 ./nginx 資料夾！)"
           echo "如果存在，檔案內容："
-          [ -f ./nginx/default.conf ] && cat ./nginx/default.conf || echo "(./nginx/default.conf 檔案不存在
+          if [ -f ./nginx/default.conf ]; then
+            cat ./nginx/default.conf
+          else
+            echo "(./nginx/default.conf 檔案不存在)"
+          fi
 
       - name: 📦 上傳 default.conf 到 EC2
         uses: appleboy/scp-action@master
