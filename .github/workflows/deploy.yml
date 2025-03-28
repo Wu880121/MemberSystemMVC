@@ -94,8 +94,12 @@ jobs:
               -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
               ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
 
-            echo "🌐 啟動 Nginx 伺服器（對外開放 8000）"
-            docker run -d --name nginx_server \
+            echo "📁 檢查必要資料夾是否存在，若無則建立"
+            [ -d /home/ec2-user/shopping-cart/nginx ] || mkdir -p /home/ec2-user/shopping-cart/nginx
+            [ -d /home/ec2-user/shopping-cart/public ] || mkdir -p /home/ec2-user/shopping-cart/public
+
+             echo "🌐 啟動 Nginx 伺服器（對外開放 8000）"
+             docker run -d --name nginx_server \
               --network my-net \
               -p 8000:80 \
               -v /home/ec2-user/shopping-cart/nginx/default.conf:/etc/nginx/conf.d/default.conf \
