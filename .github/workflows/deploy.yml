@@ -48,44 +48,18 @@ jobs:
           docker tag my-mvc-php-app ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
 
-      - name: 📁 建立部署所需資料夾（先於 SCP 執行）
+      - name: 🔑 Fix directory ownership
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.AWS_EC2_HOST }}
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           script: |
-            mkdir -p /home/ec2-user/shopping-cart/nginx
-            mkdir -p /home/ec2-user/shopping-cart/public
+            sudo mkdir -p /home/***/shopping-cart/nginx
+            sudo chown -R ec2-user:ec2-user /home/***/shopping-cart
+            sudo chmod -R 755 /home/***/shopping-cart
 
-      - name: 🧹 移除錯誤的 default.conf 資料夾（如果存在）
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.AWS_EC2_HOST }}
-          username: ${{ secrets.AWS_EC2_USER }}
-          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-          script: |
-            if [ -d /home/ec2-user/shopping-cart/nginx/default.conf ]; then
-              echo "⚠️ default.conf 是資料夾，強制刪除!"
-              sudo rm -r /home/ec2-user/shopping-cart/nginx/default.conf
-            fi
-
-      - name: 🔍 Debug - 檢查檔案存在
-        run: |
-          echo "目前目錄："
-          pwd
-          echo "列出專案根目錄："
-          ls -l
-          echo "列出 ./nginx："
-          ls -l ./nginx || echo "(找不到 ./nginx 資料夾！)"
-          echo "如果存在，檔案內容："
-          if [ -f ./nginx/default.conf ]; then
-            cat ./nginx/default.conf
-          else
-            echo "(./nginx/default.conf 檔案不存在)"
-          fi
-
-      - name: 📦 上傳 default.conf 到 EC2
+      - name: 📦 上傳整個 ./nginx
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.AWS_EC2_HOST }}
