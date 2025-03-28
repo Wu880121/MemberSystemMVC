@@ -1,0 +1,112 @@
+name: CI/CD Pipeline for PHP MVC + Nginx
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ✅ Checkout 最新程式碼
+        uses: actions/checkout@v3
+
+      - name: 🔐 SSH 登入 EC2 並測試
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AWS_EC2_HOST }}
+          username: ${{ secrets.AWS_EC2_USER }}
+          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+          script: |
+            echo "✅ 成功登入 EC2"
+
+      - name: 🔐 解碼 SSH 金鑰
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AWS_EC2_PRIVATE_KEY_BASE64 }}" | base64 -d > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.AWS_EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: 👀 顯示 SSH 金鑰檔案權限與內容（前 5 行）
+        run: |
+          ls -l ~/.ssh
+          head -5 ~/.ssh/id_rsa
+
+      - name: 🧪 測試 SSH 連線
+        run: |
+          ssh -vvv -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.AWS_EC2_USER }}@${{ secrets.AWS_EC2_HOST }} "echo '✅ 成功連線到 EC2！'"
+
+      - name: 🔐 Docker 登入
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: 🚀 推送映像檔到 Docker Hub
+        run: |
+          docker build -t my-mvc-php-app .
+          docker tag my-mvc-php-app ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
+
+      - name: 🚢 SSH 連線部署到 AWS EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AWS_EC2_HOST }}
+          username: ${{ secrets.AWS_EC2_USER }}
+          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }} # <--- 這裡一定要用 key_path！！
+          script: |
+
+            sudo systemctl start docker
+            set -x
+            echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+            docker pull ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
+
+            echo "🛑 停止並刪除舊容器..."
+            docker stop my-mvc-php-app nginx_server || true
+            docker rm my-mvc-php-app nginx_server || true
+
+            echo "🛑 嘗試移除舊容器..."
+            docker stop my-mvc-php-app || true
+            docker rm my-mvc-php-app || true
+
+            echo "🧹 嘗試清除佔用 8000 port 的容器與進程（如果有）"
+            containers=$(docker ps -a --filter "publish=8000" -q)
+            if [ -n "$containers" ]; then
+              echo "⚠️ 發現佔用 port 8000 的容器：$containers，強制移除"
+              docker rm -f $containers || true
+            fi
+
+            pid=$(lsof -t -i :8000 || true)
+            if [ -n "$pid" ]; then
+              echo "⚠️ 發現有進程佔用 8000：PID $pid，強制 kill"
+              kill -9 $pid || true
+            fi
+
+            echo "🌐 建立 Docker 專用網路（如尚未存在）"
+            docker network inspect my-net >/dev/null 2>&1 || docker network create my-net
+
+            echo "🐘 啟動 PHP-FPM 容器（不對外開放）"
+            docker run -d --name my-mvc-php-app \
+              --network my-net \
+              -e DB_HOST=${{ secrets.DB_HOST }} \
+              -e DB_DATABASE=${{ secrets.DB_DATABASE }} \
+              -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
+              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+              ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
+
+            echo "🌐 啟動 Nginx 伺服器（對外開放 8000）"
+            docker run -d --name nginx_server \
+              --network my-net \
+              -p 8000:80 \
+              -v /home/ec2-user/EatingForYou/nginx/default.conf:/etc/nginx/conf.d/default.conf \
+              -v /home/ec2-user/EatingForYou/public:/var/www/html \
+              nginx
+
+            echo "✅ 部署完成，確認 Nginx 正常啟動"
+            sleep 5
+            docker ps
+                echo "✅ 成功部署後你可以瀏覽："
+                echo "👉 http://${{ secrets.AWS_EC2_HOST }}:8000"
+
+            echo "🔍 確認 Nginx 容器實際使用的 default.conf 設定（fastcgi_pass）"
+            docker exec nginx_server grep fastcgi_pass /etc/nginx/conf.d/default.conf
