@@ -41,13 +41,6 @@ jobs:
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      - name: 🚑 確保本地 default.conf 存在
-        run: |
-          if [ ! -f "./nginx/default.conf" ]; then
-            echo "❌ 找不到 ./nginx/default.conf"
-            exit 1
-          fi
-
       - name: 📁 建立 EC2 資料夾和權限
         uses: appleboy/ssh-action@master
         with:
@@ -55,7 +48,7 @@ jobs:
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           script: |
-            sudo mkdir -p /home/ec2-user/shopping-cart/nginx
+            # sudo mkdir -p /home/ec2-user/shopping-cart/nginx
             sudo mkdir -p /home/ec2-user/shopping-cart/public
             sudo chown -R ec2-user:ec2-user /home/ec2-user/shopping-cart
             sudo chmod -R 755 /home/ec2-user/shopping-cart
