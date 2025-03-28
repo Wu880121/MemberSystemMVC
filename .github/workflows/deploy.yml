@@ -50,7 +50,8 @@ jobs:
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           script: |
             echo "📁 建立 shopping-cart 專案資料夾（如果不存在就建立）"
-            sudo mkdir -p /home/ec2-user/shopping-cart
+            sudo mkdir -p /home/ec2-user/shopping-cart/nginx
+            sudo mkdir -p /home/ec2-user/shopping-cart/public
             sudo chown -R ec2-user:ec2-user /home/ec2-user/shopping-cart
             sudo chmod -R 755 /home/ec2-user/shopping-cart
             echo "✅ shopping-cart 資料夾建立完成，權限設定完畢"
@@ -74,7 +75,7 @@ jobs:
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           source: "./nginx/default.conf"
-          target: "/home/ec2-user/shopping-cart/nginx/"
+          target: "/home/ec2-user/shopping-cart/nginx/default.conf"
 
       - name: 🚀 建置並推送映像檔到 Docker Hub
         run: |
