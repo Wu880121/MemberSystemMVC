@@ -55,7 +55,8 @@ jobs:
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           script: |
-            mkdir -p /home/ec2-user/shopping-cart/
+            mkdir -p /home/ec2-user/shopping-cart/nginx
+            mkdir -p /home/ec2-user/shopping-cart/public
 
       - name: 🧹 移除錯誤的 default.conf 資料夾（如果存在）
         uses: appleboy/ssh-action@master
@@ -65,18 +66,18 @@ jobs:
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           script: |
             if [ -d /home/ec2-user/shopping-cart/nginx/default.conf ]; then
-              echo "⚠️ 發現 default.conf 是資料夾，執行刪除"
+              echo "⚠️ default.conf 是資料夾，強制刪除!"
               sudo rm -r /home/ec2-user/shopping-cart/nginx/default.conf
             fi
 
-      # - name: 📦 上傳 default.conf 到 EC2
-      #   uses: appleboy/scp-action@master
-      #   with:
-      #     host: ${{ secrets.AWS_EC2_HOST }}
-      #     username: ${{ secrets.AWS_EC2_USER }}
-      #     key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-      #     source: "./nginx/default.conf"
-      #     target: "/home/ec2-user/shopping-cart/nginx/default.conf"
+      - name: 📦 上傳 default.conf 到 EC2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.AWS_EC2_HOST }}
+          username: ${{ secrets.AWS_EC2_USER }}
+          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+          source: "./nginx/default.conf"
+          target: "/home/ec2-user/shopping-cart/nginx/default.conf"
 
       - name: 🚢 SSH 連線部署到 AWS EC2
         uses: appleboy/ssh-action@master
