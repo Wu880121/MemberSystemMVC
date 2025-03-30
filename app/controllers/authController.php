@@ -3,49 +3,55 @@ require_once __DIR__ . '/../models/user.php';
 
 class AuthController
 {
+
+
     public function register()
     {
 
 
-        $message = '';
-        $color = '';
+        $status = '';
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $username = $_POST['username'] ?? '';
             $password = $_POST['password'] ?? '';
+			$email = $_POST['email'] ?? '';
+			$phone = $_POST['phone'] ?? '';
+			$birthday = $_POST['birthday'] ?? '';
 
             if (empty($username) || empty($password)) {
-                echo "<p style='color:red;'>請填寫帳號與密碼</p>";
-                return;
+                $status = 'error';
             }
 
             $userModel = new user();
             $existing = $userModel->findByUsername($username);
 
             if ($existing) {
-                echo "<p style='color:red;'>帳號已存在，請使用其他名稱</p>";
-                return;
+                $status = 'info';
             }
 
-            $success = $userModel->register($username, $password);
+            $success = $userModel->register($username, $password,$email,$phone,$birthday);
 
             if ($success) {
-                echo "<p style='color:green;'>註冊成功！<a href='index.php?route=login'>前往登入</a></p>";
+                $status = 'success';
             } else {
-                echo "<p style='color:red;'>註冊失敗，請稍後再試</p>";
+                $status = 'error';
             }
         }
+
+        include __DIR__ . '/../views/pages/register.php';
     }
 
 
     public function login()
     {
+        $status = '';
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $username = $_POST['username'] ?? '';
             $password = $_POST['password'] ?? '';
 
             if (empty($username) || empty($password)) {
-                echo "<p style='color:red;'>請輸入帳號與密碼</p>";
-                return;
+                $status = 'info';
             }
 
             $userModel = new user();
@@ -53,12 +59,12 @@ class AuthController
 
             if (!$user) {
 
-                echo "<p style='color:red;'>帳號或密碼錯誤，請重新輸入</p>";
-                return;
+                $status = 'error';
             }
 
             if ($user) {
 
+                $status = 'success';
                 $_SESSION['user'] = $user;
 
                 // ✅ 處理記住我
@@ -68,11 +74,13 @@ class AuthController
                     $userModel->saveLoginToken($user['id'], $token);
                 }
 
-
-                header('Location: index.php');
+                
+                header('Location: /index.php?route=home');
                 exit;
             }
         }
+
+        include __DIR__ . '/../views/pages/login.php';
     }
 
 
@@ -80,6 +88,7 @@ class AuthController
     {
 
 
+        $status = '';
         // 清除 session
         session_unset();
         session_destroy();

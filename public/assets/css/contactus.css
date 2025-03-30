@@ -1,0 +1,156 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #3794;
+}
+
+.container {
+  position: relative;
+  width: 1200px;
+  background: #fff;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+}
+
+.heading {
+  font-size: 2.5em;
+  font-weight: 600;
+  text-align: center;
+  padding-top: 40px;
+  color: rgb(16, 163, 226);
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  margin: 20px 50px;
+  gap: 30px;
+}
+
+.flex-area {
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+}
+
+.entryarea {
+  position: relative;
+  height: 60px;
+  line-height: 60px;
+  margin: 12px 0px;
+  width: 100%;
+}
+
+.entryarea input,
+.entryarea textarea {
+  outline: none;
+  position: absolute;
+  z-index: 1;
+  width: 100%;
+  font-size: 1.2em;
+  line-height: 20px;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  padding: 20px 0px;
+  padding-right: 3em;
+  padding-left: 1em;
+  transition: 0.1s ease;
+  background: transparent;
+}
+
+.entryarea input:focus,
+.entryarea input:valid {
+  color: #106ddfb7;
+  border: 3px solid #106ddfb7;
+}
+
+.entryarea textarea:focus,
+.entryarea textarea:valid {
+  color: #106ddfb7;
+  border: 3px solid #106ddfb7;
+}
+
+.entryarea input:focus + .labelline,
+.entryarea input:not(:placeholder-shown) + .labelline,
+.entryarea textarea:focus + .labelline,
+.entryarea textarea:not(:placeholder-shown) + .labelline {
+  color: #106ddfb7;
+  transform: translate(-8px, -18px) scale(0.88);
+  height: 30px;
+  line-height: 30px;
+  z-index: 1111;
+}
+
+.fa-regular {
+  position: absolute;
+  right: 30px;
+  font-size: 1.8em;
+  z-index: 11;
+  color: rgba(0, 0, 0, 0.5);
+  top: 15px;
+}
+
+.entryarea textarea {
+  line-height: 20px;
+  height: 100px;
+  padding: 20px;
+  font-size: 1em;
+  resize: vertical;
+}
+
+.labelline {
+  position: absolute;
+  font-size: 1.2em;
+  color: rgba(0, 0, 0, 0.5);
+  padding: 0px 5px;
+  margin: 0 20px;
+  background: #fff;
+  transition: 0.2s ease;
+  top: 8px;
+}
+
+#btn {
+  margin-top: 80px;
+  margin-bottom: 40px;
+  font-size: 1.6em;
+  font-weight: 500;
+  border: none;
+  border-radius: 10px;
+  background: #3794ff;
+  color: #fff;
+  padding: 16px 0;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .flex-area {
+    flex-wrap: wrap;
+  }
+  .labelline {
+    position: absolute;
+    font-size: 1.2em;
+    color: rgba(0, 0, 0, 0.5);
+    padding: 0px 5px;
+    margin: 0 20px;
+    background: #fff;
+    transition: 0.2s ease;
+    top: 4px;
+  }
+  .fa-regular {
+    position: absolute;
+    right: 30px;
+    font-size: 1.8em;
+    z-index: 11;
+    color: rgba(0, 0, 0, 0.5);
+    top: 18px;
+  }
+}

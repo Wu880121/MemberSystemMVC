@@ -5,13 +5,11 @@ switch ($route) {
     case 'home':
         require_once '../app/controllers/HomeController.php';
         (new HomeController)->index();
-        include '../app/views/home.php';
         break;
 
     case 'login':
         require_once '../app/controllers/authController.php';
         (new AuthController)->login();
-        include '../app/views/login.php';
         break;
 
     case 'logout':
@@ -22,7 +20,12 @@ switch ($route) {
     case 'register':
         require_once '../app/controllers/authController.php';
         (new AuthController)->register();
-        include '../app/views/register.php';
+        break;
+
+   case 'map':
+       require_once __DIR__ . '/../app/controllers/StaticPageController.php';
+        $controller = new StaticPageController();
+        $controller->show_map();
         break;
 
     default:

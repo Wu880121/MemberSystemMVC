@@ -1,0 +1,506 @@
+* {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #fcfaf2;
+}
+
+/* ----------導覽列開始---------------- */
+.nav {
+  width: 100%;
+  height: 75px;
+  background-color: #0f1016d4;
+  color: #f0f0f0;
+  position: fixed;
+  z-index: 99;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav h1 {
+  margin-left: 20px;
+}
+
+.nav ul {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  margin-right: 20px;
+}
+
+.nav ul li {
+  font-size: 25px;
+}
+
+.nav ul li a {
+  color: #de8730e7;
+  text-decoration: none;
+}
+
+.nav ul li a:hover {
+  color: rgb(50, 186, 102);
+  text-decoration: none;
+}
+
+.menu-toogle,
+.menu-icon {
+  display: none;
+}
+
+.nav-phone {
+  display: none;
+}
+/* ----------導覽列結束---------------- */
+
+/* ------------TOP按鈕---------------- */
+.return_top h1 i {
+  width: 50px;
+  height: 50px;
+  line-height: 50px;
+  background-color: rgba(253, 199, 112, 0.8);
+  font-size: 30px;
+  position: fixed;
+  z-index: 99;
+  border-radius: 50%;
+  left: 95%;
+  top: 90%;
+  text-align: center;
+  color: #462506cb;
+}
+
+.return_top h1 a {
+  text-decoration: none;
+  cursor: pointer;
+  color: #1137b1b2;
+}
+/* ------------TOP按鈕結束---------------- */
+
+/* -----------看板---------------------- */
+.border {
+  display: grid; /* 使用 Grid 布局 */
+  grid-template-columns: repeat(12, 1fr);
+  margin-bottom: 30px;
+}
+
+.border img {
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+  display: grid;
+  grid-column: 1/13;
+}
+/* -----------看板結束------------------- */
+
+/* -------這是中間圖片的地方------------- */
+/* -------container-right ------------- */
+.container-right {
+  display: grid; /* 使用 Grid 布局 */
+  grid-template-columns: repeat(12, 1fr); /* 將容器分為 12 格 */
+  gap: 20px; /* 兩個 div 之間的間隙 */
+  padding: 20px;
+  /* background-color: antiquewhite; */
+}
+
+.p-right {
+  grid-column: 2/6; /* 文字占據第 7 到第 12 列（後 6 格） */
+  font-size: 16px;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  letter-spacing: 2px;
+  text-align: justify;
+  border-bottom: 2px solid black;
+  margin-right: -40px;
+}
+
+.p-right h1 {
+  font-size: 20px;
+}
+
+.img-right {
+  grid-column: 7/12; /* 圖片占據第 1 到第 6 列（前 6 格） */
+  width: 100%; /* 保證圖片的寬度填滿容器 */
+  height: auto;
+  object-fit: cover; /* 讓圖片自動填充容器，同時保持比例 */
+}
+
+.img-right img {
+  width: 100%;
+  height: 350px;
+  object-fit: cover;
+}
+
+.img-right {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* 當滑鼠懸停時圖片縮放並且加上陰影 */
+.img-right:hover {
+  transform: scale(1.05); /* 放大 1.05 倍 */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* 增加陰影 */
+}
+/* -------container-right ------------- */
+
+/* -------container-left ------------- */
+.container-left {
+  display: grid; /* 使用 Grid 布局 */
+  grid-template-columns: repeat(12, 1fr); /* 將容器分為 12 格 */
+  gap: 20px; /* 兩個 div 之間的間隙 */
+  padding: 20px;
+  /* background-color: antiquewhite; */
+}
+
+.img-left {
+  grid-column: 2/7; /* 圖片占據第 1 到第 6 列（前 6 格） */
+  width: 100%; /* 保證圖片的寬度填滿容器 */
+  height: auto;
+  object-fit: cover; /* 讓圖片自動填充容器，同時保持比例 */
+}
+
+.img-left img {
+  width: 100%;
+  height: 350px;
+  object-fit: cover;
+}
+
+.img-left {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* 當滑鼠懸停時圖片縮放並且加上陰影 */
+.img-left:hover {
+  transform: scale(1.05); /* 放大 1.05 倍 */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* 增加陰影 */
+}
+
+.p-left {
+  grid-column: 8/12; /* 文字占據第 7 到第 12 列（後 6 格） */
+  font-size: 16px;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  letter-spacing: 2px;
+  border-bottom: 2px solid black;
+  text-align: justify; /* 可以讓文字左右對齊整齊 */
+  margin-left: -40px;
+}
+
+.p-left h1 {
+  font-size: 20px;
+}
+
+/* -------container-left ------------- */
+/* -------這是中間圖片結束的地方------------- */
+/*在使用grid的時候必須注意HTML裡面的先後順序，在CSS裡面必須從前面開始
+例如:2/7開始8/12結束，在抓HTML的時候記得也要按照這個要擺放的順序，否則會排版亂掉。*/
+
+/* ------------footer--------------------- */
+
+.footer {
+  width: 100%;
+  height: 45px;
+  height: 100px;
+  background-color: #de8730e7;
+  color: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  letter-spacing: 2px;
+  margin-top: 30px;
+}
+
+/* ----------------footer結束--------------------- */
+
+/* ----------------自適應1024px開始------------ */
+@media (max-width: 1024px) {
+  .container-left {
+    grid-template-columns: repeat(12, 1fr);
+  }
+
+  .img-left {
+    grid-column: 1/7;
+  }
+
+  .p-left {
+    grid-column: 7/13;
+    gap: 10px;
+    padding: 0 10px;
+    font-size: 16px;
+    text-align: justify;
+    margin: 0px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .container-right {
+    grid-template-columns: repeat(12, 1fr);
+  }
+
+  .p-right {
+    grid-column: 1/7;
+    gap: 10px;
+    padding: 0 10px;
+    font-size: 16px;
+    text-align: justify;
+    margin: 0px;
+  }
+
+  .img-right {
+    grid-column: 7/13;
+  }
+}
+/* ---------------1024手機版本ReturnTop------------------- */
+.return_top h1 i {
+  width: 50px;
+  height: 50px;
+  line-height: 50px;
+  background-color: rgba(253, 199, 112, 0.8);
+  font-size: 30px;
+  position: fixed;
+  z-index: 99;
+  border-radius: 50%;
+  left: 92%;
+  top: 90%;
+  text-align: center;
+  color: #462506cb;
+}
+
+/* ---------------1024手機版本ReturnTop結束--------------- */
+
+/* ----------------自適應1024px結束------------ */
+
+/* ----------------自適應768px開始------------ */
+@media (max-width: 768px) {
+  /* container-left 和 container-right 需要都改成單列佈局 */
+
+  /* ------------------------nav-------------------------- */
+
+  /* -----------隱藏網頁版的NAV--------------- */
+  .nav {
+    display: none;
+  }
+
+  /* ------------------------------------------------- */
+
+  /* -------------------顯示手機版的NAV--------------- */
+  .nav-phone {
+    display: block;
+  }
+
+  ------------------------------------------------------
+  
+    /* -----------------手機版NAV開始---------------------- */
+    * {
+    padding: 0px;
+    margin: 0px;
+    box-sizing: border-box;
+  }
+
+  .burger h1 {
+    margin-left: 10px;
+    color: #f0f0f0;
+  }
+
+  .burger {
+    width: 100%;
+    height: 85px;
+    background-color: #0f1016d4;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: fixed;
+  }
+
+  .checkbox-toggles {
+    display: none;
+  }
+
+  .checkbox-icon {
+    cursor: pointer;
+  }
+
+  .burger-menu {
+    background-color: rgb(255, 153, 0);
+    height: 50px;
+    width: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    margin-right: 20px;
+    border-radius: 10px;
+  }
+
+  .burger-menu li {
+    width: 35px;
+    height: 2px;
+    border: 2px solid #462506cb;
+    background-color: #462506cb;
+    list-style: none;
+  }
+
+  /* -------------------------側邊隱藏欄位---------------------- */
+  #overlay {
+    /* display: none; */
+    top: 85px;
+    left: 0;
+    width: 50%;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    position: fixed;
+    cursor: pointer;
+    transform: translateX(-100%);
+    overflow: hidden;
+  }
+
+  /* ------------------------------------------------------------------- */
+  .checkbox-toggles:checked + .checkbox-icon #line1 {
+    transition: 0.2s linear;
+    transform: rotate(45deg) translate(5px, 5px);
+  }
+
+  .checkbox-toggles:checked + .checkbox-icon #line2 {
+    opacity: 0;
+  }
+
+  .checkbox-toggles:checked + .checkbox-icon #line3 {
+    transition: 0.2s linear;
+    transform: rotate(-45deg) translate(7px, -7px);
+  }
+
+  /* -------------------------側邊隱藏欄位---------------------- */
+  .checkbox-toggles:checked + .checkbox-icon #overlay {
+    transform: translateX(0%);
+    transition: all 0.3s;
+    animation: fadein 0.5s ease;
+  }
+
+  /* ------------------------------------------------------------------- */
+
+  @keyframes fadein {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  .nav-menu {
+    display: flex;
+    justify-content: start;
+    text-align: center;
+    overflow: hidden;
+    position: fixed;
+    top: 85px;
+    right: 0;
+    background-color: #3e2d19;
+    height: 100vh;
+    /*(XX%)vh=占滿螢幕高度*/
+    width: 50%;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    z-index: 99;
+  }
+
+  .nav-menu ul {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 0 20px;
+    box-shadow: -5px 0 5px rgba(0, 0, 0, 0.25);
+  }
+
+  .nav-menu ul li {
+    list-style: none;
+    border-bottom: 2px solid #fbecec2e;
+    font-size: 30px;
+    overflow: hidden;
+    height: 40px;
+  }
+
+  .nav-menu ul li:nth-child(1) {
+    margin-top: 40px;
+  }
+
+  .nav-menu ul li:nth-child(2),
+  .nav-menu ul li:nth-child(3),
+  .nav-menu ul li:nth-child(4) {
+    margin-top: 10px;
+  }
+
+  .nav-menu ul li a {
+    text-decoration: none;
+    color: #f0f0f0;
+    font-size: 30px;
+    width: 100%;
+    height: auto;
+    /* background-color: aqua; */
+    justify-content: flex-start;
+  }
+
+  .nav-menu a:hover {
+    color: rgba(253, 199, 112, 0.8);
+  }
+
+  .checkbox-toggles:checked ~ .nav-menu {
+    transform: translateX(0%);
+    transition: transform 0.3s ease;
+  }
+
+  /* ---------------手機板nav結束----------------------- */
+
+  .container-left,
+  .container-right {
+    grid-template-columns: 1fr;
+  }
+
+  /* 圖片和文字的順序需要調整，使用 flex 和 order */
+  .img-left,
+  .img-right {
+    grid-column: 1/2; /* 讓圖片佔據整行 */
+    order: 0; /* 將圖片放在文字前面 */
+  }
+
+  .p-left,
+  .p-right {
+    grid-column: 1/2; /* 文字佔據整行 */
+    order: 1; /* 文字放在圖片後面 */
+    padding: 20px 10px;
+    font-size: 16px;
+    text-align: justify;
+    margin: 0px;
+  }
+
+  /* 隱藏返回頂部按鈕
+  .return_top {
+     display: none;
+  } */
+
+  /* ---------------768手機版本ReturnTop------------------- */
+  .return_top h1 i {
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
+    background-color: rgba(253, 199, 112, 0.8);
+    font-size: 30px;
+    position: fixed;
+    border-radius: 50%;
+    left: 85%;
+    top: 90%;
+    text-align: center;
+    color: #462506cb;
+  }
+
+  /* ---------------768手機版本ReturnTop結束--------------- */
+}
+/* ----------------自適應768px結束------------ */

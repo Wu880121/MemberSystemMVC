@@ -16,18 +16,24 @@ class user
 	}
 
 
-	public function register($username, $password)
+	public function register($username, $password,$email,$phone,$birthday)
 	{
 
 		$hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-		$sql = "INSERT INTO users (username,password) VALUES(:username,:password)";
+		$sql = "INSERT INTO users (username,password,email,phone,birthday) VALUES(:username,:password,:email,:phone,:birthday)";
 
 		$stmt = $this->conn->prepare($sql);
 
 		$stmt->bindParam(':username', $username);
 
 		$stmt->bindParam(':password', $hashedPassword);
+		
+		$stmt->bindParam(':email', $email);
+		
+		$stmt->bindParam(':phone', $phone);
+		
+		$stmt->bindParam(':birthday', $birthday);
 
 		return $stmt->execute();
 	}

@@ -19,13 +19,15 @@ class HomeController
                     $_SESSION['user'] = $user;
                 } else {
                     setcookie('remember_token', '', time() - 3600, '/');
-                    header('Location: index.php?route=login');
+                    header('Location: /index.php?route=login');
                     exit;
                 }
             } else {
-                header('Location: index.php?route=login');
+                header('Location: /index.php?route=login');
                 exit;
             }
         }
+
+        include __DIR__ . '/../views/pages/home.php';
     }
 }

@@ -1,0 +1,47 @@
+/* ----------導覽列開始---------------- */
+.nav {
+  width: 100%;
+  height: 75px;
+  background-color: #0f1016d4;
+  color: #f0f0f0;
+  position: fixed;
+  z-index: 99;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav h1 {
+  margin-left: 20px;
+}
+
+.nav ul {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  margin-right: 20px;
+}
+
+.nav ul li {
+  font-size: 25px;
+}
+
+.nav ul li a {
+  color: #de8730e7;
+  text-decoration: none;
+}
+
+.nav ul li a:hover {
+  color: rgb(50, 186, 102);
+  text-decoration: none;
+}
+
+.menu-toogle,
+.menu-icon {
+  display: none;
+}
+
+.nav-phone {
+  display: none;
+}
+/* ----------導覽列結束---------------- */
