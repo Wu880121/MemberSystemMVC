@@ -7,8 +7,7 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.all.min.js"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.min.css">
+  
  	<link rel="stylesheet" href="/assets/css/register.css">
   <title>Form</title>
 </head>
@@ -55,7 +54,7 @@
 
         <div class="input-box">
           <label>Birthday Date</label>
-          <input type="date" placeholder="Enter your birthday" name="birthdaate" />
+          <input type="date" placeholder="Enter your birthday" name="birthdate" />
         </div>
       </div>
 
@@ -95,7 +94,10 @@
       <button type="submit">submit</button>
     </form>
   </div>
+  
+  <?php  include __DIR__. ('/../layouts/sweetalert.php')  ?>
 </body>
-
 </html>
+
+
 

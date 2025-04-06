@@ -2,7 +2,4 @@
   <div class="footer">
     <p><small>要吃要快&copy</small></p>
   </div>
-</body>
-
-</html>
 <!-- -----------------------footer結束-------------------------- -->

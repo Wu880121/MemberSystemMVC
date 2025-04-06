@@ -12,7 +12,7 @@
       </li>
       <!-- 使用者已登入，顯示登出按鈕 -->
    
-      <?php if (isset($_SESSION['user'])): ?>
+      <?php if (isset($_COOKIE['token'])): ?>
         <button onclick="window.location.href='index.php?route=logout'">登出</button>
       <?php else: ?>
         <!-- 使用者未登入，顯示登入按鈕 -->

@@ -1,6 +1,10 @@
 <?php
 require_once __DIR__ . '/../models/user.php';
 
+require_once __DIR__ . '/RegisterRequest.php';
+
+require_once __DIR__ . '/../services/JwtService.php';
+
 class AuthController
 {
 
@@ -9,33 +13,81 @@ class AuthController
     {
 
 
-        $status = '';
-
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+			$name = $_POST['name'] ?? '';
             $username = $_POST['username'] ?? '';
             $password = $_POST['password'] ?? '';
+			$confirm_password = $_POST['confirm_password'] ?? '';
 			$email = $_POST['email'] ?? '';
-			$phone = $_POST['phone'] ?? '';
-			$birthday = $_POST['birthday'] ?? '';
+			$tel = $_POST['tel'] ?? '';
+			$birthdate= $_POST['birthdate'] ?? '';
+			$sex = $_POST['sex'] ?? '';
+			$city = $_POST['city'] ?? '';
+			$street = $_POST['street'] ?? '';
+			
+			 $data = $_POST;
+			 
+			 
+        // ✅ 進行格式驗證
+        $errors = RegisterRequest::validate($data);
+
+        if (!empty($errors)) {
+            $_SESSION['alert'] = [
+                'status' => 'register_error',
+                'message' => implode(' / ', $errors) // 多筆錯誤合併顯示
+            ];
+            header('Location: index.php?route=register');
+            exit;
+        }
 
             if (empty($username) || empty($password)) {
-                $status = 'error';
+                
+				$_SESSION['alert']=[
+				'status' => 'enter_error',
+				'message' => '未正確輸入帳號或密碼'];
+				header('Location: index.php?route=register');
+				exit;
             }
+			
+			if($password!==$confirm_password){
+				
+				$_SESSION['alert']=[
+				'status' => 'confirm_error',
+				'message' => '請重新確認輸入的密碼'];
+				header('Location: index.php?route=register');
+				exit;
+			}
 
-            $userModel = new user();
+            $userModel = new User();
             $existing = $userModel->findByUsername($username);
 
             if ($existing) {
-                $status = 'info';
+				
+				$_SESSION['alert']=[
+                'status' => 'username_info',
+				'message' => '此帳號重複，請重新新增帳號'];
+				header('Location: index.php?route=register');
+				exit;
             }
 
-            $success = $userModel->register($username, $password,$email,$phone,$birthday);
+            $success = $userModel->register($name,$username, $password,$email,	$tel,$birthdate, $sex, $city, $street );
 
             if ($success) {
-                $status = 'success';
+				
+				$_SESSION['alert']=[
+                'status' => 'register_success',
+				'message' => '註冊成功!'];
+				header('Location: index.php?route=login');
+				exit;
             } else {
-                $status = 'error';
+				
+				$_SESSION['alert']=[
+                'status' => 'register_error',
+				'message' => '註冊失敗!'];
+				header('Location: index.php?route=register');
+				exit;
             }
+		
         }
 
         include __DIR__ . '/../views/pages/register.php';
@@ -44,39 +96,65 @@ class AuthController
 
     public function login()
     {
-        $status = '';
+
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $username = $_POST['username'] ?? '';
             $password = $_POST['password'] ?? '';
 
             if (empty($username) || empty($password)) {
-                $status = 'info';
+				
+				$_SESSION['alert']=[
+                'status' => 'login_info',
+				'message' => '登入失敗!，查無此帳號或密碼'];
+				
+				header('Location: index.php?route=login');
+				exit;
             }
 
-            $userModel = new user();
+            $userModel = new User();
             $user = $userModel->verifyPassword($username, $password);
 
             if (!$user) {
 
-                $status = 'error';
+				$_SESSION['alert']=[
+                'status' => 'login_error',
+				'message' => '帳號或密碼輸入錯誤!'];
+				
+				header('Location: index.php?route=login');
+				exit;
             }
 
             if ($user) {
+				
+			   $isRemember = !empty($_POST['remember']);
+			   
+			    // JWT token 有效時間（秒）
+              $expiresIn = $isRemember ? (3600 * 24 * 30) : (3600 * 2);
+              $token = JwtService::encode([
+              'user_id' => $user['id'],
+              'username' => $user['username']
+               ], $expiresIn);
 
-                $status = 'success';
-                $_SESSION['user'] = $user;
+               // 裝置資訊（也可以用 user agent 傳過來）
+              $device = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown';
+              $expiresAt = date('Y-m-d H:i:s', time() + $expiresIn);
 
-                // ✅ 處理記住我
-                if (!empty($_POST['remember'])) {
-                    $token = bin2hex(random_bytes(32));
-                    setcookie('remember_token', $token, time() + (86400 * 30), '/');
-                    $userModel->saveLoginToken($user['id'], $token);
-                }
+              // 儲存到 login_tokens 表
+             $userModel->saveLoginToken($user['id'], $token, $device, $expiresAt);
 
-                
+              // 寫入 Cookie（或回傳 JSON 給前端）
+              setcookie('token', $token, time() + $expiresIn, '/', '', false, true); // HttpOnly ✅  
+			  
+			  $_SESSION['alert']=[
+			   'status' => 'login_success',
+               'message' => '登入成功!'];
+			   
+
+              
                 header('Location: /index.php?route=home');
-                exit;
+				exit;
+                
             }
         }
 
@@ -84,21 +162,25 @@ class AuthController
     }
 
 
-    public function logout()
+			
+	  public function logout()
     {
+        $token = $_COOKIE['token'] ?? null;
 
+        if ($token) {
+            // 刪除 login_tokens 表中的該 token（進階做法）
+            $UserTokenModel = new User();
+            $UserTokenModel->deleteLoginToken($token);
 
-        $status = '';
-        // 清除 session
-        session_unset();
+            // 清空 cookie
+            setcookie('token', '', time() - 3600, '/', '', false, true);
+        }
+
+        // 清除 Session（如果你有用）
         session_destroy();
 
-        // 🔥 清除 cookie（記住我）
-        setcookie('remember_token', '', time() - 3600, '/');
-
-        // 🔥 也可以刪除 login_tokens 裡的 token（進階）
-
-        header('Location: index.php?route=login');
+        // 導回登入頁
+        header('Location: /index.php?route=login');
         exit;
-    }
+      }
 }

@@ -27,6 +27,9 @@ switch ($route) {
         $controller = new StaticPageController();
         $controller->show_map();
         break;
+		
+	//case 'forgot-password':
+		
 
     default:
         include '../app/views/404.php';

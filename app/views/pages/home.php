@@ -96,6 +96,11 @@
       <img src="/assets/images/多樣菜色.jpg" alt="多樣菜色" />
     </div>
   </div>
+  
+    <?php include __DIR__ . '/../layouts/footer.php';?>
+	
+	  <?php  include __DIR__. ('/../layouts/sweetalert.php')  ?>
+  </body>
+</html>
   <!-- ---------------------------main結束-------------------------- -->
 
-    <?php include __DIR__ . '/../layouts/footer.php';?>

@@ -10,12 +10,8 @@ services:
     working_dir: /var/www/html
     volumes:
       - D:/shopping-cart:/var/www/html
-    environment:
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - DB_DATABASE=${DB_DATABASE}
-      - DB_USERNAME=${DB_USERNAME}
-      - DB_PASSWORD=${DB_PASSWORD}
+    env_file:
+    - .env
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:

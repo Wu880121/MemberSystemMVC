@@ -5,13 +5,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="/assets/css/login.css">
-
-  <script src="/assets/js/login-handler.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.all.min.js"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.min.css">
+ 
   <title>Login</title>
 </head>
 
@@ -33,7 +30,7 @@
           <label for="rememberme">remember me</label>
         </section>
         <section>
-          <a href="sendemail.php" class="forgot-password">Forgot Password</a>
+          <a href="index.php?route=forgot-password" class="forgot-password">Forgot Password</a>
         </section>
       </div>
       <div class="sign-in">
@@ -45,6 +42,7 @@
       </div>
     </form>
   </div>
+    <?php  include __DIR__. ('/../layouts/sweetalert.php')  ?>
 </body>
 
 </html>

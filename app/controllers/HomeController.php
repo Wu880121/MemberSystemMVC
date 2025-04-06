@@ -1,33 +1,37 @@
 <?php
 require_once '../app/models/user.php';
-require_once '../app/models/login_tokens.php';
+require_once '../app/services/JwtService.php';
 
 class HomeController
 {
     public function index()
     {
+        $token = $_COOKIE['token'] ?? null;
 
+        if (!$token) {
+            header('Location: /index.php?route=login');
+            exit;
+        }
 
-        if (!isset($_SESSION['user'])) {
-            $token = $_COOKIE['remember_token'] ?? null;
+        try {
+            $decoded = JwtService::decode($token);
 
-            if ($token) {
-                $tokenModel = new login_tokens();
-                $user = $tokenModel->findByRememberToken($token);
+            $userModel = new User();
+            $user = $userModel->findById($decoded->user_id);
 
-                if ($user) {
-                    $_SESSION['user'] = $user;
-                } else {
-                    setcookie('remember_token', '', time() - 3600, '/');
-                    header('Location: /index.php?route=login');
-                    exit;
-                }
-            } else {
+            if (!$user) {
+                setcookie('token', '', time() - 3600, '/');
                 header('Location: /index.php?route=login');
                 exit;
             }
-        }
 
-        include __DIR__ . '/../views/pages/home.php';
+            // ✅ 你現在不需要 $_SESSION，直接把 $user 傳給 view 用即可
+            include __DIR__ . '/../views/pages/home.php';
+
+        } catch (Exception $e) {
+            setcookie('token', '', time() - 3600, '/');
+            header('Location: /index.php?route=login');
+            exit;
+        }
     }
 }

@@ -1,4 +1,3 @@
-// login-handler.js
 function baseToastConfig(iconColor) {
   return Swal.mixin({
     toast: true,
@@ -14,32 +13,26 @@ function baseToastConfig(iconColor) {
   });
 }
 
-function showSuccess(message,url) {
+function showSuccess(message) {
   const Toast = baseToastConfig('green');
   Toast.fire({
     title: `${message}`,
     icon: 'success'
-  }).then(() => {
-    window.location.href = '${url}';
   });
 }
 
-function showError(message,url) {
+function showError(message) {
   const Toast = baseToastConfig('red');
   Toast.fire({
-    title: '${message}',
+    title: `${message}`,
     icon: 'error'
-  }).then(() => {
-    window.location.href = '${url}';
   });
 }
 
-function showNotFound(message,url) {
+function showInfo(message) {
   const Toast = baseToastConfig('red');
   Toast.fire({
-    title: '${message}',
+    title: `${message}`,
     icon: 'info'
-  }).then(() => {
-    window.location.href = '${url}';
   });
 }

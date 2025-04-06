@@ -3,7 +3,7 @@
 require_once __DIR__ . '/../../config/database.php';
 
 
-class user
+class User
 {
 
 	private $conn;
@@ -16,12 +16,12 @@ class user
 	}
 
 
-	public function register($username, $password,$email,$phone,$birthday)
+	public function register($name,$username, $password,$email,	$tel,$birthdate, $sex, $city, $street)
 	{
 
 		$hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-		$sql = "INSERT INTO users (username,password,email,phone,birthday) VALUES(:username,:password,:email,:phone,:birthday)";
+		$sql = "INSERT INTO users (username,password,email,tel,birthdate,sex,city,street) VALUES(:username,:password,:email,:tel,:birthdate,:sex,:city,:street)";
 
 		$stmt = $this->conn->prepare($sql);
 
@@ -31,9 +31,15 @@ class user
 		
 		$stmt->bindParam(':email', $email);
 		
-		$stmt->bindParam(':phone', $phone);
+		$stmt->bindParam(':tel', $tel);
 		
-		$stmt->bindParam(':birthday', $birthday);
+		$stmt->bindParam(':birthdate', $birthdate);
+		
+		$stmt->bindParam(':sex', $sex);
+		
+		$stmt->bindParam(':city', $city);
+		
+		$stmt->bindParam(':street', $street);
 
 		return $stmt->execute();
 	}
@@ -62,15 +68,35 @@ class user
 	}
 
 
-	public function saveLoginToken($userId, $token)
-	{
-		$expiresAt = date('Y-m-d H:i:s', strtotime('+30 days'));
+          public function saveLoginToken($userId, $token, $device, $expiresAt)
+          {
+               $sql = "INSERT INTO login_tokens (user_id, token, device, expires_at)
+                VALUES (:user_id, :token, :device, :expires_at)";
+                $stmt = $this->conn->prepare($sql);
+                $stmt->bindParam(':user_id', $userId);
+                $stmt->bindParam(':token', $token);
+                $stmt->bindParam(':device', $device);
+                $stmt->bindParam(':expires_at', $expiresAt);
+                return $stmt->execute();
+            }
 
-		$sql = "INSERT INTO login_tokens (user_id, token, expires_at) VALUES (:user_id, :token, :expires_at)";
-		$stmt = $this->conn->prepare($sql);
-		$stmt->bindParam(':user_id', $userId);
-		$stmt->bindParam(':token', $token);
-		$stmt->bindParam(':expires_at', $expiresAt);
-		$stmt->execute();
-	}
+           public function deleteLoginToken($token)
+           {
+              $sql = "DELETE FROM login_tokens WHERE token = :token";
+              $stmt = $this->conn->prepare($sql);
+              $stmt->bindParam(':token', $token);
+              $stmt->execute();
+            }
+
+
+			public function findById($decoded){
+				
+				$sql = "SELECT * FROM login_tokens WHERE user_id= :user_id";
+				$stmt = $this->conn->prepare($sql);
+				$stmt->bindParam(':user_id', $decoded);
+               $stmt->execute();
+			   
+			    return $stmt->fetch(PDO::FETCH_ASSOC);
+				
+			}
 }

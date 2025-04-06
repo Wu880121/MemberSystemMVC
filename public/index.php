@@ -1,6 +1,12 @@
 <?php
 // public/index.php
 
+require_once __DIR__ . '/../vendor/autoload.php';
+
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
+$dotenv->load();
+
+
 session_start();
 
 // 載入路由設定
