@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="sendemail.css" />
+<link rel="stylesheet" href="/assets/css/sendemail.css">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
   </style>
@@ -16,7 +16,7 @@
 <body>
   <div class="container">
     <h1>忘記密碼</h1>
-    <form method="post" action="sendemail.php">
+    <form method="post" action="index.php?route=sendemail">
       <div class="form-container">
         <label for="email">電子郵件：</label>
         <input
@@ -29,6 +29,8 @@
       </div>
     </form>
   </div>
+  
+  <?php  include __DIR__. ('/../layouts/sweetalert.php')  ?>
 </body>
 
 </html>

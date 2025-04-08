@@ -36,6 +36,8 @@
 
         </form>
     </div>
+	
+	<?php  include __DIR__. ('/../layouts/sweetalert.php')  ?>
 </body>
 
 </html>

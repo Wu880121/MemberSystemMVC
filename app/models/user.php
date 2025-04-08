@@ -99,4 +99,17 @@ class User
 			    return $stmt->fetch(PDO::FETCH_ASSOC);
 				
 			}
+			
+			public function updatePasswordByEmail($email, $hashedPassword)
+               {
+                   $stmt = $this->conn->prepare("UPDATE users SET password = ? WHERE email = ?");
+                   return $stmt->execute([$hashedPassword, $email]);
+                }
+				
+				public function findByEmail($email)
+				{
+					
+					$stmt = $this->conn->prepare("SELECT * FROM users WHERE email= ? ");
+					return $stmt->execute([$email]);
+				}
 }

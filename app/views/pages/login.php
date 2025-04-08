@@ -30,7 +30,7 @@
           <label for="rememberme">remember me</label>
         </section>
         <section>
-          <a href="index.php?route=forgot-password" class="forgot-password">Forgot Password</a>
+          <a href="index.php?route=sendemail" class="forgot-password">Forgot Password</a>
         </section>
       </div>
       <div class="sign-in">

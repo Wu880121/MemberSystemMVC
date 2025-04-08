@@ -51,6 +51,45 @@
         showSuccess(message);
         break;
 		
+	  case "noEnterEmail":
+        showError(message);
+        break;
+		
+	  case "noFoundEmail":
+        showError(message);
+        break;
+		
+	  case "SuccessSendEmail":
+        showSuccess(message);
+        break;
+
+	  case "noFoundToken":
+        showInfo(message);
+        break;	
+
+	  case "TokenNotEffect":
+        showInfo(message);
+        break;	
+
+	  case "noEnterpassword":
+        showInfo(message);
+        break;			
+		
+	  case "PasswordNotSame":
+        showError(message);
+        break;		
+		
+	  case "TokenNotEffect":
+        showError(message);
+        break;	
+
+	  case "SuccessChange":
+        showSuccess(message);
+        break;			
+
+		
+
+		
 		
       default:
         showError("發生未知錯誤");
