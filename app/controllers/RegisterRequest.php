@@ -5,8 +5,8 @@ class RegisterRequest
     {
         $errors = [];
 
-        if (empty($data['username']) || strlen($data['username']) < 4 || strlen($data['username']) >8 ) {
-            $errors[] = '帳號至少 4 字，且小於8個字';
+        if (empty($data['username']) || strlen($data['username']) < 4 || strlen($data['username']) >18 ) {
+            $errors[] = '帳號至少 4 字，且小於18個字';
         }
 
         if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {

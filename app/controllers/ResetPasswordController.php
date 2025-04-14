@@ -39,7 +39,7 @@ class ResetPasswordController
         }
 
         // 顯示重設密碼頁面，帶入 token
-        include '../views/reset_password.php';
+        require_once __DIR__. '/../views/pages/resetpassword.php';
     }
 
     // 處理使用者提交的新密碼

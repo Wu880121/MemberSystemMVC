@@ -130,10 +130,11 @@ class AuthController
 			   $isRemember = !empty($_POST['remember']);
 			   
 			    // JWT token 有效時間（秒）
-              $expiresIn = $isRemember ? (3600 * 24 * 30) : (3600 * 2);
+              $expiresIn = $isRemember ? (3600 * 24 * 1) : (3600 * 2);
               $token = JwtService::encode([
               'user_id' => $user['id'],
-              'username' => $user['username']
+              'username' => $user['username'],
+			   'role' => $user['role']  // admin or user
                ], $expiresIn);
 
                // 裝置資訊（也可以用 user agent 傳過來）
@@ -152,7 +153,7 @@ class AuthController
 			   
 
               
-                header('Location: /index.php?route=home');
+                header('Location: /index.php?route=middleware');
 				exit;
                 
             }
@@ -183,4 +184,5 @@ class AuthController
         header('Location: /index.php?route=login');
         exit;
       }
+	  
 }

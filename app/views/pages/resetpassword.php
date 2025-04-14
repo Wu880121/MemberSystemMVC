@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="resetpassword.css">
+ <link rel="stylesheet" href="/assets/css/resetpassword.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
     </style>
@@ -16,7 +16,7 @@
 <body>
     <div class="container">
         <div class="heading">Change Password</div>
-        <form method="post" action="resetpassword.php?token=<?php echo htmlspecialchars($_GET["token"] ?? ''); ?>">
+        <form method="post" action=" index.php?route=resetpassword&token=<?php echo htmlspecialchars($_GET["token"] ?? ''); ?>">
             <!-- ?? '' (Null 合併運算子)
             如果 token 存在，則回傳 $_GET['token']。
             如果 token 不存在 (例如 resetpassword.php 沒有 ?token=123456)，則回傳 '' (空字串)，避免 Undefined index 錯誤。-->

@@ -37,7 +37,7 @@ class MailerService
             $this->mailer->Body    = '
                 <h2>密碼重設通知</h2>
                 <p>請點擊以下連結來重設您的密碼：</p>
-                <p><a href="http://localhost:8000/index.php?route=&token=' . $token . '">重設密碼</a></p>
+                <p><a href="http://localhost:8000/index.php?route=resetpassword&token=' . $token . '">重設密碼</a></p>
                 <p>若您未申請重設，請忽略此信件。</p>
             ';
 

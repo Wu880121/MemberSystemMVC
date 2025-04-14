@@ -85,12 +85,40 @@
 
 	  case "SuccessChange":
         showSuccess(message);
-        break;			
+        break;		
 
-		
+	  case "noToken":
+        showError(message);
+        break;				
 
+	  case "noToken":
+        showError(message);
+        break;				
 		
+	  case "login_error":
+        showError(message);
+        break;		
+
+	  case "cant_login":
+        showError(message);
+        break;				
 		
+	  case "role_login_success":
+        showSuccess(message);
+        break;				
+		
+	  case "error_edit":
+        showError(message);
+        break;		
+
+	  case "success_edit":
+        showSuccess(message);
+        break;		
+		
+	  case "DeleteSucess":
+        showSuccess(message);
+        break;				
+
       default:
         showError("發生未知錯誤");
     }

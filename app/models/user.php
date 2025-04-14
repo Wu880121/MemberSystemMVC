@@ -112,4 +112,90 @@ class User
 					$stmt = $this->conn->prepare("SELECT * FROM users WHERE email= ? ");
 					return $stmt->execute([$email]);
 				}
+				
+				
+				public function finddata(){
+					
+				
+				$stmt=$this->conn->query("SELECT * FROM users");
+				
+			    return	$stmt->fetchALL(PDO::FETCH_ASSOC);
+				
+				}
+				
+				public function  getDataByPage($offset,$limit){
+					
+					$stmt = $this->conn->prepare("SELECT * FROM users LIMIT :offset , :limit ");
+					$stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+					$stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+					$stmt->execute();
+					
+					return $stmt->fetchAll(PDO::FETCH_ASSOC);
+				}
+				
+				public function getAllCount(){
+					
+					$stmt = $this->conn->query("SELECT COUNT(*) FROM users");
+					return $stmt-> fetchColumn();
+				}
+				
+				
+				public function selectById($id){
+					
+					$stmt = $this->conn->prepare("SELECT * FROM users WHERE id = :id");
+					
+					$stmt->bindParam(':id',$id);
+					
+					$stmt->execute();
+					
+					return $stmt->fetch(PDO::FETCH_ASSOC);
+					
+				}
+				
+				public function edit($id,$username,$password,$email,$tel,$birthdate,$sex,$city,$street,$role){
+					
+					$stmt = $this->conn->prepare("
+					
+					UPDATE users SET 
+					username = :username,
+					password = :password,
+					email = :email,
+					tel = :tel,
+					birthdate = :birthdate,
+					sex = :sex,
+					city = :city,
+					street = :street,
+					role = :role 
+					
+					WHERE id = :id
+					
+					");
+					
+					$stmt->bindParam(":username",$username);
+					$stmt->bindParam(":password",$password);
+					$stmt->bindParam(":email",$email);
+					$stmt->bindParam(":tel",$tel);
+					$stmt->bindParam(":birthdate",$birthdate);
+					$stmt->bindParam(":sex",$sex);
+					$stmt->bindParam(":city",$city);
+					$stmt->bindParam(":street",$street);
+					$stmt->bindParam(":role",$role);
+					$stmt->bindParam(":id",$id);
+					
+					$stmt->execute();
+				
+				    return $stmt->fetchALL(PDO::FETCH_ASSOC);
+				}
+				
+				
+				public function UserDelete($id){
+					
+					$stmt = $this->conn->prepare("DELETE  FROM users WHERE id = :id");
+					
+					$stmt->bindParam(':id',$id);
+					
+					return $stmt->execute();
+				}
+			
 }
+

@@ -1,0 +1,80 @@
+/* /assets/css/admin-form.css */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f8f9fc;
+  margin: 0;
+  padding: 40px;
+}
+
+.form-container {
+  background: #ffffff;
+  max-width: 500px;
+  margin: auto;
+  padding: 30px 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  color: #343a40;
+}
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  margin-top: 16px;
+  color: #495057;
+  font-weight: 500;
+}
+
+input, select {
+  width: 100%;
+  padding: 10px;
+  font-size: 15px;
+  margin-bottom: 5px;
+  border: 1px solid #ced4da;
+  border-radius: 5px;
+  background-color: #fefefe;
+  transition: border-color 0.3s;
+}
+
+input:focus, select:focus {
+  border-color: #4a90e2;
+  outline: none;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  background-color: #4a90e2;
+  color: #ffffff;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #357abd;
+}
+
+.alert {
+  padding: 12px 15px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+.alert.error_edit {
+  background-color: #ffe0e0;
+  color: #a10000;
+}
+
+.alert.success_edit {
+  background-color: #e0ffe3;
+  color: #007f3d;
+}

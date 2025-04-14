@@ -9,7 +9,7 @@ function baseToastConfig(iconColor) {
     },
     showConfirmButton: false,
     timerProgressBar: true,
-    timer: 2000
+    timer: 3000
   });
 }
 
