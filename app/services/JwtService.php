@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../../vendor/autoload.php'; // 確保能使用 composer 套件
+//require_once __DIR__ . '/../../vendor/autoload.php'; // 確保能使用 composer 套件
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 

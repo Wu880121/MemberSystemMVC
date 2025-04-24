@@ -57,6 +57,8 @@ class AuthController
 				header('Location: index.php?route=register');
 				exit;
 			}
+			
+
 
             $userModel = new User();
             $existing = $userModel->findByUsername($username);

@@ -100,6 +100,15 @@ class User
 				
 			}
 			
+			
+			public function getPasswordByEmail($email){
+				
+				$stmt = $this->conn->prepare("SELECT password FROM users WHERE email = :email LIMIT 1");
+				$stmt->bindValue(":email", $email);
+				$stmt->execute();
+				return $stmt->fetch(PDO::FETCH_ASSOC);
+			}
+			
 			public function updatePasswordByEmail($email, $hashedPassword)
                {
                    $stmt = $this->conn->prepare("UPDATE users SET password = ? WHERE email = ?");
@@ -152,6 +161,14 @@ class User
 					
 				}
 				
+				public function selectOldPasswordFromId($id){
+					
+					$stmt = $this->conn->prepare("SELECT password FROM users WHERE id = :id LIMIT 1");
+					$stmt->bindValue(":id",$id);
+					$stmt->execute();
+					return $stmt->fetch(PDO::FETCH_ASSOC);
+				}
+				
 				public function edit($id,$username,$password,$email,$tel,$birthdate,$sex,$city,$street,$role){
 					
 					$stmt = $this->conn->prepare("
@@ -195,6 +212,74 @@ class User
 					$stmt->bindParam(':id',$id);
 					
 					return $stmt->execute();
+				}
+				
+				public function ManageCreat($name,$username,$password,$email,$tel,$birthdate,$sex,$city,$street){
+					
+					$stmt = $this->conn->prepare("INSERT INTO 
+					users( 
+							 name,
+							 username,
+							 password,
+							 email,
+							 tel,
+							 birthdate,
+							 sex,
+							 city,
+							 street
+					) 
+					VALUES(
+							:name,
+							:username,
+							:password,
+							:email,
+							:tel,
+							:birthdate,
+							:sex,
+							:city,
+							:street
+					)");
+					
+					$stmt->bindValue(':name' , $name);
+					$stmt->bindValue(':username' , $username);
+					$stmt->bindValue(':password' , $password);
+					$stmt->bindValue(':email' , $email);
+					$stmt->bindValue(':tel', $tel);
+					$stmt->bindValue(':birthdate' , $birthdate);
+					$stmt->bindValue(':sex' ,$sex);
+					$stmt->bindValue(':city' ,$city);
+					$stmt->bindValue(':street' ,$street);
+					
+					return $stmt->execute();
+					
+				}
+				
+				
+				public function ManageSearch($search,$offset,$limit){
+					
+					
+					$stmt = $this->conn->prepare("SELECT * FROM  users WHERE 
+					CONCAT(id, username, email, tel , birthdate, sex, city, street, role)
+					COLLATE utf8mb4_general_ci
+					LIKE :search LIMIT  :offset , :limit");
+					$stmt->bindValue(":search", "%".$search."%");
+					$stmt->bindValue(":offset", (int)$offset, PDO::PARAM_INT);
+					$stmt->bindValue(":limit", (int)$limit, PDO::PARAM_INT);
+					$stmt->execute();
+					return  $stmt->fetchALL(PDO::FETCH_ASSOC);
+					
+				}
+				
+				public function ManageGetSearchCount($search){
+					
+					$stmt= $this->conn->prepare("SELECT COUNT(*) FROM users WHERE 
+					CONCAT(id, username, email, tel ,birthdate, sex, city, street, role)
+					COLLATE utf8mb4_general_ci
+					LIKE :search");
+					
+					$stmt->bindValue(":search", "%".$search."%");
+					$stmt->execute();
+					return $stmt->fetchColumn();
 				}
 			
 }

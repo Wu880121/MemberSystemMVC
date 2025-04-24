@@ -118,7 +118,19 @@
 	  case "DeleteSucess":
         showSuccess(message);
         break;				
-
+		
+		case "ManageCreateSuccess":
+		 showSuccess(message);
+		 break;
+		
+		case "ManageCreateError":
+		 showError(message);
+		 break;
+		
+		case "PasswordCantSame":
+		showError(message);
+		break;
+		
       default:
         showError("發生未知錯誤");
     }

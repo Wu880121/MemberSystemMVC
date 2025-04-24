@@ -90,7 +90,24 @@ class ResetPasswordController
         }
 
         $email = $record['email'];
+		
         $userModel = new User();
+		
+		$oldPassword = $userModel->getPasswordByEmail($email);
+		
+		if (isset($oldPassword) && password_verify($password , $oldPassword['password'] )){
+			
+			$_SESSION['alert']=[
+			
+				'status' => 'PasswordCantSame',
+				'message' => '新密碼與舊密碼不能一樣'
+			];
+			
+			header ("Location: index.php?route=resetpassword&token=" . urlencode($token));
+			exit;
+			
+		}
+		
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
         $userModel->updatePasswordByEmail($email, $hashedPassword);
 

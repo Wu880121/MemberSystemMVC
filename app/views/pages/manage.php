@@ -89,6 +89,20 @@
 
 <div class="container">
     <h2>使用者列表</h2>
+	
+	<!-- 搜尋欄開始 -->
+	<?php $search = $_GET['search'] ?? ''; ?>
+<form action="index.php?route=manageSearch" method="GET" class="mb-4" style="display: flex; gap: 10px; align-items: center;">
+    <input type="hidden" name="route" value="manageSearch">
+    <input type="text" name="search" placeholder="🔍 輸入帳號或Email搜尋..." value="<?= htmlspecialchars($search) ?>" class="form-control" style="max-width: 300px; border-radius: 6px; padding: 8px 12px;">
+    <button type="submit" class="btn btn-primary" style="padding: 8px 20px; border-radius: 6px;">搜尋</button>
+	
+	    <?php if (!empty($search)): ?>
+        <a href="index.php?route=manage" class="btn btn-outline-secondary" style="padding: 8px 20px; border-radius: 6px;">清除搜尋</a>
+    <?php endif; ?>
+</form>
+<!-- 搜尋欄結束 -->
+	
     <a href="index.php?route=create" class="button">➕ 新增使用者</a>
 
     <table>
@@ -121,8 +135,8 @@
 				<td><?= htmlspecialchars($result['street']) ?></td>
 				<td><?= htmlspecialchars($result['role']) ?></td>
                 <td class="action-links">
-                    <a href="index.php?route=edit&id=<?= $result['id'] ?>">✏️ 編輯</a>
-                    <a href="index.php?route=delete&id=<?= $result['id'] ?>" onclick="return confirm('確定要刪除?')">🗑️ 刪除</a>
+                    <a href="index.php?route=edit&id=<?= htmlspecialchars($result['id']) ?>">✏️ 編輯</a>
+                    <a href="index.php?route=delete&id=<?= htmlspecialchars($result['id']) ?>" onclick="return confirm('確定要刪除?')">🗑️ 刪除</a>
                 </td>
             </tr>
             <?php endforeach; ?>
@@ -172,7 +186,7 @@ $end = min($totalPages, $page + $visibleRange);
   </ul>
 </nav>
 
-
+   <?php  include __DIR__. ('/../layouts/sweetalert.php')  ?>
 
 </body>
 </html>

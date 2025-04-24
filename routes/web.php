@@ -34,6 +34,12 @@ switch ($route) {
         $controller->manage();
         break;
 		
+		case 'manageSearch':
+		require_once __DIR__. '/../app/controllers/ManageController.php';
+		$controller = new Manage();
+		$controller->ManageSearch();
+		break;
+		
 	//case 'forgot-password':
 	
 	case 'sendemail':
@@ -93,6 +99,22 @@ switch ($route) {
 			require_once __DIR__ . '/../app/controllers/ManageController.php';
 			(new Manage)->ManageDelete();
 		}
+		break;
+		
+		
+		case  'create':
+		
+		if ($_SERVER['REQUEST_METHOD']==='GET'){
+		
+		require_once __DIR__ . "/../app/controllers/ManageController.php";
+		(new Manage)->ManageCreate();		
+		
+		}elseif ($_SERVER['REQUEST_METHOD']==='POST'){
+			
+		require_once __DIR__ . "/../app/controllers/ManageController.php";
+		(new Manage)->ManageCreate();		
+		}
+		
 		break;
 	
     default:
