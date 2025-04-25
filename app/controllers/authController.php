@@ -108,26 +108,43 @@ class AuthController
 				
 				$_SESSION['alert']=[
                 'status' => 'login_info',
-				'message' => '登入失敗!，查無此帳號或密碼'];
+				'message' => '登入失敗!，請填寫帳號或密碼，不可為空'];
 				
 				header('Location: index.php?route=login');
 				exit;
             }
-
-            $userModel = new User();
-            $user = $userModel->verifyPassword($username, $password);
-
-            if (!$user) {
-
-				$_SESSION['alert']=[
-                'status' => 'login_error',
-				'message' => '帳號或密碼輸入錯誤!'];
+			
+		    $userModel = new User();
+            $user = $userModel->findByUsername($username);
+			
+			if(!$user){
 				
-				header('Location: index.php?route=login');
-				exit;
+				    $_SESSION['alert'] = [
+                    'status' => 'login_error',
+                     'message' => '查無此帳號'
+              ];
+                    header('Location: index.php?route=login');
+                 exit;
             }
+							
+		    if(!empty($user['lock_time'])&& strtotime($user['lock_time']) > time()){
+					
+					$remaining = strtotime($user['lock_time'])- time();
+					$min =  floor($remaining/60);
+					$sec = $remaining % 60;
+					
+					$_SESSION['alert']=[
+					
+						'status'=>'cantLogin',
+						'message' =>"還剩下{$min}分，{$sec}秒後可以登入"
+					];
+					
+					
+					header ("Location: index.php?route=login");
+					exit;
+				}
 
-            if ($user) {
+            if (isset($user['password']) && password_verify($password, $user['password'])) {
 				
 			   $isRemember = !empty($_POST['remember']);
 			   
@@ -149,21 +166,47 @@ class AuthController
               // 寫入 Cookie（或回傳 JSON 給前端）
               setcookie('token', $token, time() + $expiresIn, '/', '', false, true); // HttpOnly ✅  
 			  
+			  $userModel->resetFailedAttempts($user['id']);
+			  
 			  $_SESSION['alert']=[
 			   'status' => 'login_success',
                'message' => '登入成功!'];
-			   
-
-              
+			                 
                 header('Location: /index.php?route=middleware');
 				exit;
                 
-            }
-        }
+            }else{
+				
+				$failed =(int) ($user['failed_attempts'] ?? 0) + 1;
+				$lockTime = NULL;
+				   
+                if ($failed >= 5) {
+                $lockTime = date('Y-m-d H:i:s', strtotime('+10 minutes'));
+				 $userModel->increaseFailedAttempts($user['id'], $failed, $lockTime);
+                $_SESSION['alert'] = [
+                 'status' => 'attempts_lock',
+                 'message' => '密碼錯誤已達 5 次，帳號鎖定 10 分鐘'
+                ];
+				
+                header('Location: /index.php?route=login');
+				exit;
+				
+              } else {
+				    $userModel->increaseFailedAttempts($user['id'], $failed);
+                     $_SESSION['alert'] = [
+                       'status' => 'attempts',
+                       'message' => "密碼錯誤，已錯誤 {$failed} 次，錯誤5次會鎖帳號。"
+                 ];
+				 
 
-        include __DIR__ . '/../views/pages/login.php';
+				header('Location: /index.php?route=login');
+				exit;
     }
-
+			
+        }
+    }
+	      include __DIR__ . '/../views/pages/login.php';
+}
 
 			
 	  public function logout()

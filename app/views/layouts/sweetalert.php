@@ -12,9 +12,10 @@
   <script src="/assets/js/handler.js"></script>
  
   <script>
-    const message = "<?= $message ?>";
+  const status = <?= json_encode($status) ?>;   // 用 json_encode 安全處理
+  const message = <?= json_encode($message) ?>;
 
-    switch ("<?= $status ?>") {
+    switch (status) {
       case "enter_error":
         showError(message);
         break;
@@ -131,6 +132,20 @@
 		showError(message);
 		break;
 		
+		case "cantLogin":
+		showDialogError(message) 
+		break;		
+		
+		
+		case "attempts":
+		showDialogError(message) 
+		break;		
+		
+		case "attempts_lock":
+         showDialogError(message) 
+		break;
+		
+
       default:
         showError("發生未知錯誤");
     }

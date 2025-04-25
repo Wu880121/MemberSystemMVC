@@ -66,7 +66,26 @@ class User
 		}
 		return false; //
 	}
-
+	
+	  public function  resetFailedAttempts($username){
+		  
+		  $stmt = $this->conn->prepare("UPDATE users SET failed_attempts =0, lock_time =NULL WHERE id = :id ");
+		  $stmt->bindValue(":id" , $username);
+		  $stmt->execute();
+	  }
+	
+		public function increaseFailedAttempts($userid, $failed, $lockTime=NULL){
+			
+			if ($lockTime!==NULL){
+			$stmt = $this->conn->prepare("UPDATE users SET failed_attempts = :failed_attempts, lock_time = :lock_time WHERE id=:id");
+			$stmt->bindValue(":lock_time", $lockTime);
+			}else{
+			$stmt = $this->conn->prepare("UPDATE users SET failed_attempts = :failed_attempts WHERE id=:id");
+			}
+			$stmt->bindValue(":failed_attempts",$failed );
+			$stmt->bindValue(":id", $userid);
+			$stmt->execute();
+		}
 
           public function saveLoginToken($userId, $token, $device, $expiresAt)
           {

@@ -42,7 +42,15 @@
       </div>
     </form>
   </div>
-    <?php  include __DIR__. ('/../layouts/sweetalert.php')  ?>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+      <!-- 再 handler.js，一定要放這個，並加上版本強制更新 -->
+      <script src="/assets/js/handler.js?v=<?= time() ?>"></script>
+  
+  <!--若你之後部署上線，正式環境建議用這樣的方式避免 time：
+   <script src="/assets/js/handler.js?v=1.0.3"></script>
+  這樣版本好控管，不會每次都重抓、影響效能。 -->
+
+   <?php  include __DIR__. ('/../layouts/sweetalert.php')  ?>
 </body>
 
 </html>
