@@ -33,6 +33,14 @@
           <a href="index.php?route=sendemail" class="forgot-password">Forgot Password</a>
         </section>
       </div>
+	  
+	  <div class="google-login">
+		<a href="index.php?route=google_login">
+		
+			<img src="/assets/images/web_light_rd_na@2x.png"  alt="Goole登入"> 
+		</a>
+	  
+	  </div>
       <div class="sign-in">
         <button type="submit" class="login-btn" id="login-btn"></button>
         <label for="login-btn">Sign in</label>

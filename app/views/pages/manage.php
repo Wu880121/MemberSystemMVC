@@ -126,17 +126,17 @@
             <?php foreach ($results as $result): ?>
             <tr>
                 <td><?= $count++; ?></td>
-                <td><?= htmlspecialchars($result['username']) ?></td>
-                <td><?= htmlspecialchars($result['email']) ?></td>
-				<td><?= htmlspecialchars($result['tel']) ?></td>
-				<td><?= htmlspecialchars($result['birthdate']) ?></td>
-				<td><?= htmlspecialchars($result['sex']) ?></td>
-				<td><?= htmlspecialchars($result['city']) ?></td>
-				<td><?= htmlspecialchars($result['street']) ?></td>
-				<td><?= htmlspecialchars($result['role']) ?></td>
+                <td><?= htmlspecialchars($result['username']??' ')?></td>
+                <td><?= htmlspecialchars($result['email']??' ') ?></td>
+				<td><?= htmlspecialchars($result['tel']??' ') ?></td>
+				<td><?= htmlspecialchars($result['birthdate']??' ') ?></td>
+				<td><?= htmlspecialchars($result['sex']??' ')  ?></td>
+				<td><?= htmlspecialchars($result['city']??' ')  ?></td>
+				<td><?= htmlspecialchars($result['street']??' ')  ?></td>
+				<td><?= htmlspecialchars($result['role']??' ') ?></td>
                 <td class="action-links">
-                    <a href="index.php?route=edit&id=<?= htmlspecialchars($result['id']) ?>">✏️ 編輯</a>
-                    <a href="index.php?route=delete&id=<?= htmlspecialchars($result['id']) ?>" onclick="return confirm('確定要刪除?')">🗑️ 刪除</a>
+                    <a href="index.php?route=edit&id=<?= htmlspecialchars($result['id']??' ')  ?>">✏️ 編輯</a>
+                    <a href="index.php?route=delete&id=<?= htmlspecialchars($result['id']??' ')  ?>" onclick="return confirm('確定要刪除?')">🗑️ 刪除</a>
                 </td>
             </tr>
             <?php endforeach; ?>

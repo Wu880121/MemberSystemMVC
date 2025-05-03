@@ -10,7 +10,15 @@ switch ($route) {
     case 'login':
         require_once '../app/controllers/authController.php';
         (new AuthController)->login();
-        break;
+        break;    
+		
+	case 'SuccessRegister':
+		if($_SERVER['REQUEST_METHOD']=='GET'){
+		$email = $_GET['email'];
+        require_once '../app/controllers/StaticPageController.php';
+        (new StaticPageController)->show_SuccessRegister($email);
+        }
+		break;
 
     case 'logout':
         require_once '../app/controllers/authController.php';
@@ -114,10 +122,65 @@ switch ($route) {
 		require_once __DIR__ . "/../app/controllers/ManageController.php";
 		(new Manage)->ManageCreate();		
 		}
-		
 		break;
-	
-    default:
+		
+		
+		case 'verify':
+		require_once __DIR__. '/../app/controllers/VerifyController.php';
+		
+		if ($_SERVER['REQUEST_METHOD']==='GET'){
+			$token = $_GET['token'];
+            (new RegisterVerify)->Verify($token);
+		}
+	         break;		
+			 
+			 
+		case 'resendVerifyToken':
+		require_once __DIR__. '/../app/controllers/ResendVerifyToken.php';
+		
+		if ($_SERVER['REQUEST_METHOD']==='GET'){
+			$email = $_GET['email'];
+            (new ResendVerifyToken)->ResendVerify($email);
+		}
+	         break;		
+			 
+		
+		case 'google_login':
+		require_once __DIR__. '/../app/services/GoogleLoginRequestInformation.php';
+		
+		if ($_SERVER['REQUEST_METHOD']==='GET'){
+            (new GoogleLoginRequestInformation)->RequestInformation();
+		}
+	         break;		
+			 
+			 
+		case 'google-callback':
+		require_once __DIR__. '/../app/services/GooleLoginCallback.php';
+		
+		if ($_SERVER['REQUEST_METHOD']==='GET'){
+            (new GooleLoginCallback)->LoginCallback();
+		}
+	         break;		
+			 
+		case 'GoogleCallbackController':
+		require_once __DIR__. '/../app/controllers/GooleLoginCallbackController.php';
+		
+		if ($_SERVER['REQUEST_METHOD']==='GET'){
+            (new GooleLoginCallback)->LoginCallback();
+		}
+	         break;
+			 
+		case 'UserProfile':		
+         require_once __DIR__ . '/../app/controllers/UserProfileController.php';
+         (new UserProfileController)->UserProfile(); // 不需要判斷 GET / POST，controller 內部已經判斷了
+         break;		
+		 
+		 case '404':
+         require_once __DIR__ . '/../app/controllers/StaticPageController.php';
+         (new StaticPageController)->ShowErrorPage(); // 不需要判斷 GET / POST，controller 內部已經判斷了
+         break;
+    
+	default:
         require_once __DIR__. '/../app/views/pages/404.php';
         break;
 }

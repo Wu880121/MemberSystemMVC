@@ -3,6 +3,8 @@
 //require_once __DIR__ . '/../../vendor/autoload.php'; // 確保能使用 composer 套件
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
+use Firebase\JWT\ExpiredException;
+
 
 class JwtService
 {
@@ -39,7 +41,18 @@ class JwtService
               if (!self::$secretKey || !self::$algo) {
               self::init();
           }
+		  
+         if (!$token || !is_string($token)) {
+            throw new \RuntimeException("Token 無效或不存在");
+        }
 
-          return JWT::decode($token, new Key(self::$secretKey, self::$algo));
-         }
+        try {
+            return JWT::decode($token, new Key(self::$secretKey, self::$algo));
+        } catch (ExpiredException $e) {
+            throw new \RuntimeException("Token 已過期");
+        } catch (\Throwable $e) {
+            throw new \RuntimeException("Token 解碼失敗: " . $e->getMessage());
+        }
+  }
 }
+

@@ -5,6 +5,9 @@ require_once __DIR__ . '/RegisterRequest.php';
 
 require_once __DIR__ . '/../services/JwtService.php';
 
+require_once __DIR__ . '/../services/VerifyMailerService.php';
+
+
 class AuthController
 {
 
@@ -59,11 +62,59 @@ class AuthController
 			}
 			
 
-
+			//這邊是UpdateLocalNeverRegisterButGoogleRegister的邏輯判斷。
             $userModel = new User();
             $existing = $userModel->findByUsername($username);
 
-            if ($existing) {
+			$emailExisting = $userModel->findByEmail($email);
+			if($email==$emailExisting['email']&&$emailExisting['register_verify_status']==0){
+			
+			//這邊是要更新用的，因為有用第三方登入先存資料了，如果要在註冊一樣的東西，要更新，並且導去寄信驗證。
+			$token = bin2hex(random_bytes(32));
+			$tokenExpiredAt = date("Y-m-d H:i:s", strtotime("+ 30minutes"));
+           
+		   //這邊改成用更新的
+			$success = $userModel->UpdateLocalNeverRegisterButGoogleRegister($name,$username, $password,$email,$tel,$birthdate, $sex, $city, $street, $token, $tokenExpiredAt);
+			//user資料庫那邊也要寫一個更新function
+            if ($success) {
+				
+				
+				(new MailerService)->sendVerifyToken($email, $token);
+				
+				
+				$urlEmail = urlencode($email);
+				
+				$_SESSION['alert']=[
+                'status' => 'register_success',
+				'message' => '註冊成功!'];
+				
+				
+				header("Location: index.php?route=SuccessRegister&email={$urlEmail}");
+				exit;
+			} else {
+				
+				$_SESSION['alert']=[
+                'status' => 'register_error',
+				'message' => '註冊失敗!'];
+				header('Location: index.php?route=register');
+				exit;
+            }
+		}
+			
+
+
+		if($emailExisting){
+				
+				$_SESSION['alert']=[
+                'status' => 'email_info',
+				'message' => '此郵件重複，請重新新增郵件'];
+				header('Location: index.php?route=register');
+				exit;
+            }
+						
+	
+
+            if (isset($existing['username'])) {
 				
 				$_SESSION['alert']=[
                 'status' => 'username_info',
@@ -71,15 +122,26 @@ class AuthController
 				header('Location: index.php?route=register');
 				exit;
             }
-
-            $success = $userModel->register($name,$username, $password,$email,	$tel,$birthdate, $sex, $city, $street );
+			
+			
+			$token = bin2hex(random_bytes(32));
+			$tokenExpiredAt = date("Y-m-d H:i:s", strtotime("+ 30minutes"));
+            $success = $userModel->register($name,$username, $password,$email,	$tel,$birthdate, $sex, $city, $street, $token, $tokenExpiredAt );
 
             if ($success) {
+				
+				
+				(new MailerService)->sendVerifyToken($email, $token);
+				
+				
+				$urlEmail = urlencode($email);
 				
 				$_SESSION['alert']=[
                 'status' => 'register_success',
 				'message' => '註冊成功!'];
-				header('Location: index.php?route=login');
+				
+				
+				header("Location: index.php?route=SuccessRegister&email={$urlEmail}");
 				exit;
             } else {
 				
@@ -98,12 +160,21 @@ class AuthController
 
     public function login()
     {
-
-
+	
+		$userModel = new User();
+		
+		if($_SERVER['REQUEST_METHOD']=='GET'){
+			
+		   include_once __DIR__ . '/../views/pages/login.php';
+		}
+		
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $username = $_POST['username'] ?? '';
-            $password = $_POST['password'] ?? '';
-
+            $username = trim($_POST['username']) ?? '';
+            $password = trim($_POST['password']) ?? '';
+			
+		
+		 $user = $userModel->findByUsername($username);
+		 	
             if (empty($username) || empty($password)) {
 				
 				$_SESSION['alert']=[
@@ -114,8 +185,8 @@ class AuthController
 				exit;
             }
 			
-		    $userModel = new User();
-            $user = $userModel->findByUsername($username);
+		   
+  
 			
 			if(!$user){
 				
@@ -126,10 +197,15 @@ class AuthController
                     header('Location: index.php?route=login');
                  exit;
             }
-							
-		    if(!empty($user['lock_time'])&& strtotime($user['lock_time']) > time()){
+			
+			
+			$timeFromDB = $user['lock_time'];
+			if(!empty($timeFromDB)){
+			$CleanTime = preg_replace('#\.\d+$#',' ',$timeFromDB);
+			
+		    if(strtotime($CleanTime) > strtotime('now')){
 					
-					$remaining = strtotime($user['lock_time'])- time();
+					$remaining = strtotime($CleanTime)- time();
 					$min =  floor($remaining/60);
 					$sec = $remaining % 60;
 					
@@ -142,19 +218,72 @@ class AuthController
 					
 					header ("Location: index.php?route=login");
 					exit;
+				}else{
+					
+					$userModel->resetFailedAttempts($user['id']);
+					header ("Location: index.php?route=login");
+					exit;
+			}
 				}
+			
+
+			
+			if(isset($user['email'])&&$user['register_verify_status']==0){
+				
+				$_SESSION['alert']=[
+                'status' => 'register_verify_token_info',
+				'message' => '尚未驗證，請去收信或重寄驗證信'];
+				header('Location: index.php?route=login');
+				exit;
+			}
+			
+			
+			$timeFromDB = $user['tokenExpiredAt'];
+			$CleanTime = preg_replace('#\.\d+$#', ' ', is_string($timeFromDB) ? $timeFromDB : '');
+             //這邊是把後面的.000毫秒去除掉，為了做比較。
+			
+			if(isset($user['email'])&& strtotime($CleanTime)<time()){   //這邊的time()我已經在index那邊放亞洲台北時區了。
+				
+				$urlEmail=urlencode($user['email']);
+				//過期了那就顯示已經過期了，請去重寄驗證信
+				$_SESSION['alert']=[
+					
+					'status'=>'ExpiredToken',
+					'message'=>'Token已經過期，已經重新寄信，請去信箱查看。'
+				];
+				//並且導到重新寄信
+			header("Location: index.php?route=resendVerifyToken&email={$urlEmail}");
+				exit;
+			}
+			
+			if(!strtotime($CleanTime)&&strtotime($CleanTime)>time()){
+				//如果沒有大於現在時間就請他去郵件重新點擊驗證連結。
+				$_SESSION['alert']=[
+						
+						'status'=>'HaveToken',
+						'message'=>'驗證信已經寄出，請去信箱查看。',
+				];
+				
+				header("Location: index.php?route=login");
+				exit;
+			}
+		 
+							
+
 
             if (isset($user['password']) && password_verify($password, $user['password'])) {
 				
 			   $isRemember = !empty($_POST['remember']);
 			   
+			   $user = $userModel->findByUsername($username);
 			    // JWT token 有效時間（秒）
               $expiresIn = $isRemember ? (3600 * 24 * 1) : (3600 * 2);
               $token = JwtService::encode([
               'user_id' => $user['id'],
               'username' => $user['username'],
-			   'role' => $user['role']  // admin or user
-               ], $expiresIn);
+			   'role' => $user['role'],  // admin or user
+               'email' => $user['email']
+			   ], $expiresIn);
 
                // 裝置資訊（也可以用 user agent 傳過來）
               $device = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown';
@@ -164,9 +293,15 @@ class AuthController
              $userModel->saveLoginToken($user['id'], $token, $device, $expiresAt);
 
               // 寫入 Cookie（或回傳 JSON 給前端）
-              setcookie('token', $token, time() + $expiresIn, '/', '', false, true); // HttpOnly ✅  
+              setcookie('token', $token,   [
+                                                               'expires' => time() + 3600,
+                                                               'path' => '/',
+                                                               'secure' => false,       // ⚠️ 僅 HTTPS 時使用
+                                                               'httponly' => true,     // ✅ 防止 XSS
+                                                               'samesite' => 'Strict'  // ✅ 防止 CSRF
+                                                             ] );  
 			  
-			  $userModel->resetFailedAttempts($user['id']);
+			  $userModel->resetFailedAttempts($user['id']); //這邊是成功登入的話，刪掉登入錯誤次數的地方。
 			  
 			  $_SESSION['alert']=[
 			   'status' => 'login_success',
@@ -179,10 +314,10 @@ class AuthController
 				
 				$failed =(int) ($user['failed_attempts'] ?? 0) + 1;
 				$lockTime = NULL;
-				   
+			}
                 if ($failed >= 5) {
                 $lockTime = date('Y-m-d H:i:s', strtotime('+10 minutes'));
-				 $userModel->increaseFailedAttempts($user['id'], $failed, $lockTime);
+				 $userModel->increaseFailedAttempts($user['id']??' ', $failed, $lockTime);
                 $_SESSION['alert'] = [
                  'status' => 'attempts_lock',
                  'message' => '密碼錯誤已達 5 次，帳號鎖定 10 分鐘'
@@ -202,11 +337,10 @@ class AuthController
 				header('Location: /index.php?route=login');
 				exit;
     }
-			
-        }
+		}
     }
-	      include __DIR__ . '/../views/pages/login.php';
-}
+	
+
 
 			
 	  public function logout()

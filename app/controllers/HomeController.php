@@ -7,7 +7,6 @@ class HomeController
     public function index()
     {
         $token = $_COOKIE['token'] ?? null;
-
         if (!$token) {
             header('Location: /index.php?route=login');
             exit;

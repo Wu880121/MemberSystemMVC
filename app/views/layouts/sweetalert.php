@@ -144,6 +144,48 @@
 		case "attempts_lock":
          showDialogError(message) 
 		break;
+
+
+		case "email_info":
+         showDialogError(message) 
+		break;		
+		
+		case "register_verify_token_info":
+         showDialogError(message) 
+		break;		
+		
+		case "ExpiredToken":
+         showDialogError(message) 
+		break;		
+		
+		case "HaveToken":
+         showDialogError(message) 
+		break;		
+		
+		case "RegisterVerifySuccessVerify":
+		case "ResendVerifyTokenResendToken":
+		case "UpdateUserProfileSuccess":
+         showDialogSuccess(message) 
+		break;		
+		
+		
+		case "RegisterVerifyFailedVerify":
+		case "ResendVerifyTokenFailedResendToken":
+         showDialogError(message) 
+		break;		
+		
+		case "RegisterVerifyNofoundVerifyToken":
+         showDialogInfo(message) 
+		break;
+
+		case "UploadFailed":
+		case "UpdateUserProfileSuccess":
+		case "DoNotHaveEmail":
+		case "TokenHaveExpired":
+		case "Notoken":
+         showDialogError(message) 
+		break;		
+
 		
 
       default:

@@ -7,7 +7,7 @@ class AuthMiddleware
     {
         $token = $_COOKIE['token']  ?? null;
 
-        if (!$token) {
+		if (!$token) {
 			
 			 http_response_code(401);
 			  $_SESSION['alert']=[
@@ -16,7 +16,8 @@ class AuthMiddleware
 			        
                 header('Location: /index.php?route=login');
 				exit;
-        }
+        
+		}
 
         try {
             $payload = JwtService::decode($token);

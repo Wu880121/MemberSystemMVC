@@ -7,7 +7,6 @@
   <title>Document</title>
   <link rel="stylesheet" href="/assets/css/home.css">
     <link rel="stylesheet" href="/assets/css/footer.css">
-	<link rel="stylesheet" href="/assets/css/mobile_nav.css">
 	<link rel="stylesheet" href="/assets/css/nav.css">
 	<link rel="stylesheet" href="/assets/css/top.button.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.css"
@@ -18,9 +17,7 @@
 <body>
   
   <?php include __DIR__ .'/../layouts/nav.php';?>
-  
-  <?php include __DIR__ .'/../layouts/mobile_nav.php';?>
-  
+
     <?php include __DIR__ .'/../layouts/top_button.php';?>
 
 

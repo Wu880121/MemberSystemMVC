@@ -1,0 +1,128 @@
+[2025-05-02 16:50:05] syntax error, unexpected token "include", expecting "function" or "const" in /var/www/html/app/controllers/authController.php on line 333
+Stack trace:
+#0 /var/www/html/public/index.php(15): require_once()
+#1 {main}
+
+[2025-05-02 16:50:08] syntax error, unexpected token "include", expecting "function" or "const" in /var/www/html/app/controllers/authController.php on line 333
+Stack trace:
+#0 /var/www/html/public/index.php(15): require_once()
+#1 {main}
+
+[2025-05-02 16:50:10] syntax error, unexpected token "include", expecting "function" or "const" in /var/www/html/app/controllers/authController.php on line 333
+Stack trace:
+#0 /var/www/html/public/index.php(15): require_once()
+#1 {main}
+
+[2025-05-02 16:50:11] syntax error, unexpected token "include", expecting "function" or "const" in /var/www/html/app/controllers/authController.php on line 333
+Stack trace:
+#0 /var/www/html/public/index.php(15): require_once()
+#1 {main}
+
+[2025-05-02 16:54:42] syntax error, unexpected token "public", expecting end of file in /var/www/html/app/controllers/authController.php on line 336
+Stack trace:
+#0 /var/www/html/public/index.php(15): require_once()
+#1 {main}
+
+[2025-05-02 16:54:43] syntax error, unexpected token "public", expecting end of file in /var/www/html/app/controllers/authController.php on line 336
+Stack trace:
+#0 /var/www/html/public/index.php(15): require_once()
+#1 {main}
+
+[2025-05-02 16:56:44] Call to a member function increaseFailedAttempts() on null in /var/www/html/app/controllers/authController.php on line 320
+Stack trace:
+#0 /var/www/html/routes/web.php(12): AuthController->login()
+#1 /var/www/html/public/index.php(15): require_once('/var/www/html/r...')
+#2 {main}
+
+[2025-05-02 17:00:35] Call to a member function increaseFailedAttempts() on null in /var/www/html/app/controllers/authController.php on line 319
+Stack trace:
+#0 /var/www/html/routes/web.php(12): AuthController->login()
+#1 /var/www/html/public/index.php(15): require_once('/var/www/html/r...')
+#2 {main}
+
+[2025-05-02 17:06:46] Call to a member function increaseFailedAttempts() on null in /var/www/html/app/controllers/authController.php on line 322
+Stack trace:
+#0 /var/www/html/routes/web.php(12): AuthController->login()
+#1 /var/www/html/public/index.php(15): require_once('/var/www/html/r...')
+#2 {main}
+
+[2025-05-02 17:07:58] Call to a member function increaseFailedAttempts() on null in /var/www/html/app/controllers/authController.php on line 322
+Stack trace:
+#0 /var/www/html/routes/web.php(12): AuthController->login()
+#1 /var/www/html/public/index.php(15): require_once('/var/www/html/r...')
+#2 {main}
+
+[2025-05-02 17:35:01] SQLSTATE[22007]: Invalid datetime format: 1292 Incorrect date value: '' for column `project`.`users`.`birthdate` at row 1 in /var/www/html/app/models/user.php on line 402
+Stack trace:
+#0 /var/www/html/app/models/user.php(402): PDOStatement->execute()
+#1 /var/www/html/app/controllers/UserProfileController.php(98): User->UpdateUserProfile('', 'kocoimur00031@g...', '', '', '\xE7\x94\xB7', '', '', 4)
+#2 /var/www/html/routes/web.php(175): UserProfileController->UserProfile()
+#3 /var/www/html/public/index.php(15): require_once('/var/www/html/r...')
+#4 {main}
+
+[2025-05-02 17:37:04] syntax error, unexpected token ";", expecting ")" in /var/www/html/app/models/user.php on line 395
+Stack trace:
+#0 /var/www/html/routes/web.php(11): require_once()
+#1 /var/www/html/public/index.php(15): require_once('/var/www/html/r...')
+#2 {main}
+
+[2025-05-02 17:37:05] syntax error, unexpected token ";", expecting ")" in /var/www/html/app/models/user.php on line 395
+Stack trace:
+#0 /var/www/html/routes/web.php(6): require_once()
+#1 /var/www/html/public/index.php(15): require_once('/var/www/html/r...')
+#2 {main}
+
+[2025-05-02 17:37:07] syntax error, unexpected token ";", expecting ")" in /var/www/html/app/models/user.php on line 395
+Stack trace:
+#0 /var/www/html/routes/web.php(11): require_once()
+#1 /var/www/html/public/index.php(15): require_once('/var/www/html/r...')
+#2 {main}
+
+[2025-05-02 17:37:07] syntax error, unexpected token ";", expecting ")" in /var/www/html/app/models/user.php on line 395
+Stack trace:
+#0 /var/www/html/routes/web.php(6): require_once()
+#1 /var/www/html/public/index.php(15): require_once('/var/www/html/r...')
+#2 {main}
+
+[2025-05-02 17:37:10] syntax error, unexpected token ";", expecting ")" in /var/www/html/app/models/user.php on line 395
+Stack trace:
+#0 /var/www/html/routes/web.php(6): require_once()
+#1 /var/www/html/public/index.php(15): require_once('/var/www/html/r...')
+#2 {main}
+
+[2025-05-02 17:37:11] syntax error, unexpected token ";", expecting ")" in /var/www/html/app/models/user.php on line 395
+Stack trace:
+#0 /var/www/html/routes/web.php(11): require_once()
+#1 /var/www/html/public/index.php(15): require_once('/var/www/html/r...')
+#2 {main}
+
+[2025-05-02 17:37:12] syntax error, unexpected token ";", expecting ")" in /var/www/html/app/models/user.php on line 395
+Stack trace:
+#0 /var/www/html/routes/web.php(6): require_once()
+#1 /var/www/html/public/index.php(15): require_once('/var/www/html/r...')
+#2 {main}
+
+[2025-05-02 17:38:20] syntax error, unexpected token ";", expecting ")" in /var/www/html/app/models/user.php on line 395
+Stack trace:
+#0 /var/www/html/routes/web.php(11): require_once()
+#1 /var/www/html/public/index.php(15): require_once('/var/www/html/r...')
+#2 {main}
+
+[2025-05-02 17:38:20] syntax error, unexpected token ";", expecting ")" in /var/www/html/app/models/user.php on line 395
+Stack trace:
+#0 /var/www/html/routes/web.php(6): require_once()
+#1 /var/www/html/public/index.php(15): require_once('/var/www/html/r...')
+#2 {main}
+
+[2025-05-02 17:38:22] syntax error, unexpected token ";", expecting ")" in /var/www/html/app/models/user.php on line 395
+Stack trace:
+#0 /var/www/html/routes/web.php(11): require_once()
+#1 /var/www/html/public/index.php(15): require_once('/var/www/html/r...')
+#2 {main}
+
+[2025-05-02 17:38:23] syntax error, unexpected token ";", expecting ")" in /var/www/html/app/models/user.php on line 395
+Stack trace:
+#0 /var/www/html/routes/web.php(6): require_once()
+#1 /var/www/html/public/index.php(15): require_once('/var/www/html/r...')
+#2 {main}
+

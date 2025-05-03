@@ -73,13 +73,38 @@ jobs:
           source: "./nginx"
           target: "/home/ec2-user/shopping-cart"
 
+      # ✅ 新增：建立 .env 檔案
+      - name: 📝 建立 .env 檔案
+        run: |
+          echo "DB_HOST=${{ secrets.DB_HOST }}" > .env
+          echo "DB_PORT=${{ secrets.DB_PORT }}" > .env
+          echo "DB_DATABASE=${{ secrets.DB_DATABASE }}" >> .env
+          echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "JWT_ALGO=${{ secrets.JWT_ALGO }}" >> .env
+          echo "SUPER_SECRET_KEY=${{ secrets.SUPER_SECRET_KEY }}" >> .env
+          echo "PHP_MAILER=${{ secrets.PHP_MAILER }}" >> .env
+          echo "CLIENT_ID=${{ secrets.CLIENT_ID }}" >> .env
+          echo "REDIRECT_URI=${{ secrets.REDIRECT_URI }}" >> .env
+          echo "CLIENT_SECRET=${{ secrets.CLIENT_SECRET }}" >> .env
+
+      # ✅ 新增：上傳 .env 檔到 EC2
+      - name: 📤 上傳 .env 到 EC2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.AWS_EC2_HOST }}
+          username: ${{ secrets.AWS_EC2_USER }}
+          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+          source: ".env"
+          target: "/home/ec2-user/shopping-cart"
+
       - name: 🚀 建立並推送 Docker Image
         run: |
           docker build -t my-mvc-php-app .
           docker tag my-mvc-php-app ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
 
-      - name: 🚢 部署 Docker 到 AWS EC2
+      - name: 🚢 部署 Docker 到 AWS EC2（使用 --env-file）
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.AWS_EC2_HOST }}
@@ -102,12 +127,10 @@ jobs:
 
             docker network inspect my-net >/dev/null 2>&1 || docker network create my-net
 
+            # ✅ 改用 --env-file 方式讀取 .env
             docker run -d --name my-mvc-php-app \
               --network my-net \
-              -e DB_HOST=${{ secrets.DB_HOST }} \
-              -e DB_DATABASE=${{ secrets.DB_DATABASE }} \
-              -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
-              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+              --env-file /home/ec2-user/shopping-cart/.env \
               ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
 
             docker run -d --name nginx_server \
