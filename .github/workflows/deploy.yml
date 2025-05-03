@@ -73,15 +73,6 @@ jobs:
           source: "./nginx"
           target: "/home/ec2-user/MemberSystemMVC"
           
-      - name: 📦 上傳整個專案到 EC2（不包含 .git）
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.AWS_EC2_HOST }}
-          username: ${{ secrets.AWS_EC2_USER }}
-          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-          source: "."                # 整個專案
-          target: "/home/ec2-user/MemberSystemMVC"
-          strip_components: 0        # 保留根目錄結構
 
       - name: 📝 建立 .env 檔案
         run: |
