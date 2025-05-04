@@ -37,42 +37,20 @@ jobs:
         run: |
           ssh -vvv -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.AWS_EC2_USER }}@${{ secrets.AWS_EC2_HOST }} "echo '✅ 成功連線到 EC2！'"
 
-      - name: 🔐 Docker 登入
-        run: |
-          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-
-      - name: 📁 建立 EC2 資料夾和權限
+      
+      - name: 🧲 拉取 GitHub 專案到 EC2（包含權限處理）
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.AWS_EC2_HOST }}
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           script: |
-            sudo mkdir -p /home/ec2-user/MemberSystemMVC/public
+            cd /home/ec2-user
+            rm -rf MemberSystemMVC
+            git clone https://github.com/Wu880121/MemberSystemMVC.git
             sudo chown -R ec2-user:ec2-user /home/ec2-user/MemberSystemMVC
             sudo chmod -R 755 /home/ec2-user/MemberSystemMVC
 
-      - name: 🔥 刪除 default.conf 資料夾/檔案
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.AWS_EC2_HOST }}
-          username: ${{ secrets.AWS_EC2_USER }}
-          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-          script: |
-            if [ -e /home/ec2-user/MemberSystemMVC/nginx/default.conf ]; then
-              echo "刪除 default.conf (file or dir)"
-              rm -rf /home/ec2-user/MemberSystemMVC/nginx/default.conf
-            fi
-
-      - name: 📦 上傳 default.conf 至 EC2
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.AWS_EC2_HOST }}
-          username: ${{ secrets.AWS_EC2_USER }}
-          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-          source: "./nginx"
-          target: "/home/ec2-user/MemberSystemMVC"
-          
 
       - name: 📝 建立 .env 檔案
         run: |
@@ -110,6 +88,9 @@ jobs:
             echo "---- ✅ EC2 上的 .env 檔案 ----"
             cat /home/ec2-user/MemberSystemMVC/.env || echo "❌ 檔案不存在"
 
+      - name: 🔐 Docker 登入
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
 
 
