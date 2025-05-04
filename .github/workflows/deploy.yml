@@ -156,8 +156,6 @@ jobs:
               -v /home/ec2-user/MemberSystemMVC/public:/var/www/html \
               -v /var/www/certbot:/var/www/certbot \
               -v /etc/letsencrypt:/etc/letsencrypt \
-              -v /etc/ssl/certs:/etc/ssl/certs \
-              -v /etc/ssl/private:/etc/ssl/private \
               nginx
 
             sleep 5
