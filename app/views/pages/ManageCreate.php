@@ -107,11 +107,13 @@
         <div class="form-group">
             <label>帳號</label>
             <input type="text" name="username" required>
+			<p style="color:red;">帳號至少 4 字，且小於18個字</p>
         </div>
 
         <div class="form-group">
             <label>密碼</label>
             <input type="password" name="password" required>
+			<p style="color:red;">密碼需為 6~12 字，且包含大寫英文、數字與特殊符號</p>
         </div>
 
         <div class="form-group">

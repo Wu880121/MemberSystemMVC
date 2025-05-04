@@ -37,7 +37,7 @@ class MailerService
             $this->mailer->Body    = '
                 <h2>開通帳號驗證信</h2>
                 <p>請點擊以下連結來開通您的帳號：</p>
-                <p><a href="http://localhost:8000/index.php?route=verify&token=' . $token . '">驗證連結</a></p>
+                <p><a href="https://keepgoingpiggy.com/?route=verify&token=' . $token . '">驗證連結</a></p>
                 <p>若您未註冊，請勿點擊此連結。</p>
             ';
 

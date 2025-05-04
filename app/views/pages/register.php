@@ -26,13 +26,15 @@
         <div class="input-box">
           <label>Username</label>
           <input type="text" placeholder="Enter username" name="username" required />
+		  <p style="color:red;">帳號至少 4 字，且小於18個字</p>
         </div>
       </div>
 
       <div class="flex-area">
         <div class="input-box">
           <label>Password</label>
-          <input type="password" placeholder="Enter ull password" name="password" required />
+          <input type="password" placeholder="Enter  password" name="password" required />
+		  <p style="color:red;">密碼需為 6~12 字，且包含大寫英文、數字與特殊符號</p>
         </div>
 
         <div class="input-box">

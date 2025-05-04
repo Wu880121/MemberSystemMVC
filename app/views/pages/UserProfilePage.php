@@ -96,13 +96,6 @@
 	<input type="file" name="avatar" accept="image/*" >
 	<button type="submit">上傳</button>
 
-	<?php if (isset($_SEESION['warrning'])):    ?>
-	<p style='color:red;' >
-	<?= htmlspecialchars($_SEESION['warrning']['message']); ?>
-	</p>
-    <?php unset($_SESSION['warrning']); // 顯示完就刪掉 ?>
-    <?php endif; ?>
-
         <label for="name">姓名</label>
         <input type="text" id="name" name="name" value="<?= htmlspecialchars($user['name'] ?? '') ?>" readonly>
 
@@ -127,11 +120,18 @@
 
         <label for="street">街道</label>
         <input type="text" id="street" name="street" value="<?= htmlspecialchars($user['street'] ?? '') ?>">
-
+			
          <div class="button-group">
             <button type="submit">更新資料</button>
             <button type="button" onclick="window.location.href='index.php?route=map';">確認無誤</button>
         </div>
+		
+    <?php if (isset($_SEESION['warrning'])):    ?>
+	<p style='color:red;' >
+	<?= htmlspecialchars($_SEESION['warrning']['message']); ?>
+	</p>
+    <?php unset($_SESSION['warrning']); // 顯示完就刪掉 ?>
+    <?php endif; ?>
     </form>
 </div>
    <?php  include __DIR__. ('/../layouts/sweetalert.php')  ?>

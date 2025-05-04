@@ -25,6 +25,7 @@
                 <span class="labelline">New Password</span>
                 <i class="fa-solid fa-eye-slash"></i>
             </div>
+			<p style="color:red;">密碼需為 6~12 字，且包含大寫英文、數字與特殊符號</p>
             <div class="entryarea">
                 <input type="password" name="confirm_password" placeholder=" " required>
                 <span class="labelline">Confirm New Password</span>
