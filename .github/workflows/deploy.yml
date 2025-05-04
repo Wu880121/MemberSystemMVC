@@ -131,8 +131,8 @@ jobs:
               -p 80:80 \
               -p 443:443 \
               -v /home/ec2-user/MemberSystemMVC/nginx/default.conf:/etc/nginx/conf.d/default.conf \
-              -v /home/ec2-user/MemberSystemMVC/public:/var/www/html \
-              -v /home/ec2-user/MemberSystemMVC/public/assets:/var/www/html/assets
+              -v /home/ec2-user/MemberSystemMVC/public:/var/www/html/public \
+              -v /home/ec2-user/MemberSystemMVC/public/assets:/var/www/html/assets \
               -v /home/ec2-user/certbot/www:/var/www/certbot \
               -v /home/ec2-user/certbot/conf:/etc/letsencrypt \
               nginx
