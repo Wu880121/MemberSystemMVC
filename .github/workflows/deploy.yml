@@ -69,7 +69,7 @@ jobs:
           target: "/home/ec2-user/MemberSystemMVC"
 
       - name: 📝 建立 .env 檔案
-         run: |
+        run: |
              rm -f .env
              echo "DB_HOST=$DB_HOST" >> .env
              echo "DB_PORT=$DB_PORT" >> .env
