@@ -134,10 +134,10 @@ jobs:
             docker stop my-mvc-php-app nginx_server || true
             docker rm my-mvc-php-app nginx_server || true
 
-            containers=$(docker ps -a --filter "publish=80" -q)
+            containers=$(docker ps -a --filter "publish=8000" -q)
             [ -n "$containers" ] && docker rm -f $containers || true
 
-            pid=$(lsof -t -i :80 || true)
+            pid=$(lsof -t -i :8000 || true)
             [ -n "$pid" ] && kill -9 $pid || true
 
             docker network inspect my-net >/dev/null 2>&1 || docker network create my-net
@@ -150,7 +150,7 @@ jobs:
 
             docker run -d --name nginx_server \
               --network my-net \
-              -p 80:80 \
+              -p 8000:80 \
               -v /home/ec2-user/MemberSystemMVC/nginx/default.conf:/etc/nginx/conf.d/default.conf \
               -v /home/ec2-user/MemberSystemMVC/public:/var/www/html \
               -v /var/www/certbot:/var/www/certbot \
@@ -159,5 +159,5 @@ jobs:
             sleep 5
             docker ps
 
-            echo "\u2705 成功部署 http://${{ secrets.AWS_EC2_HOST }}:80"
+            echo "\u2705 成功部署 http://${{ secrets.AWS_EC2_HOST }}:8000"
             docker exec nginx_server grep fastcgi_pass /etc/nginx/conf.d/default.conf || echo "⚠️ Nginx 未正常啟動 or config 錯誤"
