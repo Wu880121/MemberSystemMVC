@@ -37,19 +37,28 @@ jobs:
         run: |
           ssh -vvv -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.AWS_EC2_USER }}@${{ secrets.AWS_EC2_HOST }} "echo '✅ 成功連線到 EC2！'"
 
-      
-      - name: 🧲 拉取 GitHub 專案到 EC2（包含權限處理）
+
+      - name: 🔥 刪除 EC2 上舊的專案資料夾
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.AWS_EC2_HOST }}
-          username: ${{ secrets.AWS_EC2_USER }}
-          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-          script: |
-            cd /home/ec2-user
-            rm -rf MemberSystemMVC
-            git clone https://github.com/Wu880121/MemberSystemMVC.git
-            sudo chown -R ec2-user:ec2-user /home/ec2-user/MemberSystemMVC
-            sudo chmod -R 755 /home/ec2-user/MemberSystemMVC
+           host: ${{ secrets.AWS_EC2_HOST }}
+           username: ${{ secrets.AWS_EC2_USER }}
+           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+           script: |
+             echo "✅ 刪除舊資料夾 /home/ec2-user/MemberSystemMVC"
+             rm -rf /home/ec2-user/MemberSystemMVC
+
+     
+     - name: 📦 傳送專案檔案到 EC2（SCP 整包過去）
+        uses: appleboy/scp-action@master
+        with:
+           host: ${{ secrets.AWS_EC2_HOST }}
+           username: ${{ secrets.AWS_EC2_USER }}
+           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+           source: "."       # 將整個 repo 傳過去（.dockerignore 除外）
+           target: "/home/ec2-user/MemberSystemMVC"
+
+
 
 
       - name: 📝 建立 .env 檔案
