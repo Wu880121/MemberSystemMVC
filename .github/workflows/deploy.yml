@@ -69,19 +69,32 @@ jobs:
           target: "/home/ec2-user/MemberSystemMVC"
 
       - name: 📝 建立 .env 檔案
-        run: |
-          rm -f .env
-          echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
-          echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
-          echo "DB_DATABASE=${{ secrets.DB_DATABASE }}" >> .env
-          echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
-          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
-          echo "JWT_ALGO=${{ secrets.JWT_ALGO }}" >> .env
-          echo "SUPER_SECRET_KEY=${{ secrets.SUPER_SECRET_KEY }}" >> .env
-          echo "PHP_MAILER=\"${{ secrets.PHP_MAILER }}\"" >> .env
-          echo "CLIENT_ID=${{ secrets.CLIENT_ID }}" >> .env
-          echo "REDIRECT_URI=${{ secrets.REDIRECT_URI }}" >> .env
-          echo "CLIENT_SECRET=${{ secrets.CLIENT_SECRET }}" >> .env
+         run: |
+             rm -f .env
+             echo "DB_HOST=$DB_HOST" >> .env
+             echo "DB_PORT=$DB_PORT" >> .env
+             echo "DB_DATABASE=$DB_DATABASE" >> .env
+             echo "DB_USERNAME=$DB_USERNAME" >> .env
+             echo "DB_PASSWORD=$DB_PASSWORD" >> .env
+             echo "JWT_ALGO=$JWT_ALGO" >> .env
+             echo "SUPER_SECRET_KEY=$SUPER_SECRET_KEY" >> .env
+             echo "PHP_MAILER=\"$PHP_MAILER\"" >> .env
+             echo "CLIENT_ID=$CLIENT_ID" >> .env
+             echo "REDIRECT_URI=$REDIRECT_URI" >> .env
+             echo "CLIENT_SECRET=$CLIENT_SECRET" >> .env
+         env:
+            DB_HOST: ${{ secrets.DB_HOST }}
+            DB_PORT: ${{ secrets.DB_PORT }}
+            DB_DATABASE: ${{ secrets.DB_DATABASE }}
+            DB_USERNAME: ${{ secrets.DB_USERNAME }}
+            DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+            JWT_ALGO: ${{ secrets.JWT_ALGO }}
+            SUPER_SECRET_KEY: ${{ secrets.SUPER_SECRET_KEY }}
+            PHP_MAILER: ${{ secrets.PHP_MAILER }}
+            CLIENT_ID: ${{ secrets.CLIENT_ID }}
+            REDIRECT_URI: ${{ secrets.REDIRECT_URI }}
+            CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+
 
       - name: 📤 上傳 .env 到 EC2
         uses: appleboy/scp-action@master
