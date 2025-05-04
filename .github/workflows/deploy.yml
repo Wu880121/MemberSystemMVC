@@ -78,7 +78,7 @@ jobs:
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
           echo "JWT_ALGO=${{ secrets.JWT_ALGO }}" >> .env
           echo "SUPER_SECRET_KEY=${{ secrets.SUPER_SECRET_KEY }}" >> .env
-          echo "PHP_MAILER=\"${{ secrets.PHP_MAILER }}\"" > .env
+          echo "PHP_MAILER=\"${{ secrets.PHP_MAILER }}\"" >> .env
           echo "CLIENT_ID=${{ secrets.CLIENT_ID }}" >> .env
           echo "REDIRECT_URI=${{ secrets.REDIRECT_URI }}" >> .env
           echo "CLIENT_SECRET=${{ secrets.CLIENT_SECRET }}" >> .env
