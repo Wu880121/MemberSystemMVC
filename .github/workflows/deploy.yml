@@ -28,38 +28,45 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.AWS_EC2_HOST }} >> ~/.ssh/known_hosts
 
-      - name: 👀 顯示 SSH 金鑰權限與內容
-        run: |
-          ls -l ~/.ssh
-          head -5 ~/.ssh/id_rsa
-
-      - name: 🧪 測試 SSH 連線
-        run: |
-          ssh -vvv -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.AWS_EC2_USER }}@${{ secrets.AWS_EC2_HOST }} "echo '✅ 成功連線到 EC2！'"
+      - name: 🛠️ 建立 certbot 資料夾（若不存在）
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AWS_EC2_HOST }}
+          username: ${{ secrets.AWS_EC2_USER }}
+          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+          script: |
+            mkdir -p /home/ec2-user/certbot/www
+            mkdir -p /home/ec2-user/certbot/conf
+      
+      
+      - name: 🔐 設定憑證資料夾權限（for Nginx 掛載）
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AWS_EC2_HOST }}
+          username: ${{ secrets.AWS_EC2_USER }}
+          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+          script: |
+            sudo chown -R ec2-user:ec2-user /home/ec2-user/certbot
+            sudo chmod -R 755 /home/ec2-user/certbot/conf
 
 
       - name: 🔥 刪除 EC2 上舊的專案資料夾
         uses: appleboy/ssh-action@master
         with:
-           host: ${{ secrets.AWS_EC2_HOST }}
-           username: ${{ secrets.AWS_EC2_USER }}
-           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-           script: |
-             echo "✅ 刪除舊資料夾 /home/ec2-user/MemberSystemMVC"
-             rm -rf /home/ec2-user/MemberSystemMVC
+          host: ${{ secrets.AWS_EC2_HOST }}
+          username: ${{ secrets.AWS_EC2_USER }}
+          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+          script: |
+            rm -rf /home/ec2-user/MemberSystemMVC
 
-     
-      - name: 📦 傳送專案檔案到 EC2（SCP 整包過去）
+      - name: 📦 傳送專案檔案到 EC2
         uses: appleboy/scp-action@master
         with:
-           host: ${{ secrets.AWS_EC2_HOST }}
-           username: ${{ secrets.AWS_EC2_USER }}
-           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-           source: "."       # 將整個 repo 傳過去（.dockerignore 除外）
-           target: "/home/ec2-user/MemberSystemMVC"
-
-
-
+          host: ${{ secrets.AWS_EC2_HOST }}
+          username: ${{ secrets.AWS_EC2_USER }}
+          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+          source: "."
+          target: "/home/ec2-user/MemberSystemMVC"
 
       - name: 📝 建立 .env 檔案
         run: |
@@ -75,8 +82,6 @@ jobs:
           echo "CLIENT_ID=${{ secrets.CLIENT_ID }}" >> .env
           echo "REDIRECT_URI=${{ secrets.REDIRECT_URI }}" >> .env
           echo "CLIENT_SECRET=${{ secrets.CLIENT_SECRET }}" >> .env
-          echo "---- ✅ .env 最終內容如下 ----"
-          cat .env
 
       - name: 📤 上傳 .env 到 EC2
         uses: appleboy/scp-action@master
@@ -87,21 +92,9 @@ jobs:
           source: ".env"
           target: "/home/ec2-user/MemberSystemMVC"
 
-      - name: 🕵️ 檢查 EC2 上的 .env 內容
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.AWS_EC2_HOST }}
-          username: ${{ secrets.AWS_EC2_USER }}
-          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-          script: |
-            echo "---- ✅ EC2 上的 .env 檔案 ----"
-            cat /home/ec2-user/MemberSystemMVC/.env || echo "❌ 檔案不存在"
-
       - name: 🔐 Docker 登入
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-
-
 
       - name: 🚀 建立並推送 Docker Image
         run: |
@@ -109,7 +102,7 @@ jobs:
           docker tag my-mvc-php-app ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
 
-      - name: 🚢 部署 Docker 到 AWS EC2（使用 --env-file）
+      - name: 🚢 部署 Docker 到 AWS EC2（PHP + Nginx + SSL）
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.AWS_EC2_HOST }}
@@ -117,22 +110,17 @@ jobs:
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           script: |
             sudo systemctl start docker
-            set -x
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
             docker pull ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
 
             docker stop my-mvc-php-app nginx_server || true
             docker rm my-mvc-php-app nginx_server || true
 
-            containers=$(docker ps -a --filter "publish=80" -q)
-            [ -n "$containers" ] && docker rm -f $containers || true
-
-            pid=$(lsof -t -i :80 || true)
-            [ -n "$pid" ] && kill -9 $pid || true
-
             docker network inspect my-net >/dev/null 2>&1 || docker network create my-net
 
-            # ✅ 改用 --env-file 方式讀取 .env
+            ls -l /home/ec2-user/MemberSystemMVC/nginx/default.conf || exit 1
+            ls -l /home/ec2-user/certbot/conf/live/keepgoingpiggy.com/fullchain.pem || exit 1
+
             docker run -d --name my-mvc-php-app \
               --network my-net \
               --env-file /home/ec2-user/MemberSystemMVC/.env \
@@ -143,14 +131,29 @@ jobs:
               -p 80:80 \
               -p 443:443 \
               -v /home/ec2-user/MemberSystemMVC/nginx/default.conf:/etc/nginx/conf.d/default.conf \
-              -v /home/ec2-user/MemberSystemMVC/public:/var/www/html \   這個跟下面那個在申請憑證的時候要先設置並上傳
-              -v /home/ec2-user/certbot/www:/var/www/certbot \  這個跟上面那個在申請憑證的時候要先設置並上傳
+              -v /home/ec2-user/MemberSystemMVC/public:/var/www/html \
+              -v /home/ec2-user/certbot/www:/var/www/certbot \
               -v /home/ec2-user/certbot/conf:/etc/letsencrypt \
               nginx
 
             sleep 5
             docker ps
+            docker exec nginx_server nginx -t || echo "⚠️ Nginx 設定檔有錯誤"
 
-            echo "\u2705 成功部署 http://${{ secrets.AWS_EC2_HOST }}:80"
-            echo "✅ 成功部署 https://${{ secrets.AWS_EC2_HOST }}"
-            docker exec nginx_server grep fastcgi_pass /etc/nginx/conf.d/default.conf || echo "⚠️ Nginx 未正常啟動 or config 錯誤"
+
+      - name: 📅 安裝 SSL 自動續期排程（crontab）
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AWS_EC2_HOST }}
+          username: ${{ secrets.AWS_EC2_USER }}
+          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+          script: |
+            echo '#!/bin/bash
+            docker run --rm \
+              -v /home/ec2-user/certbot/www:/var/www/certbot \
+              -v /home/ec2-user/certbot/conf:/etc/letsencrypt \
+              certbot/certbot renew --webroot --webroot-path=/var/www/certbot && docker restart nginx_server' > /home/ec2-user/certbot/renew_cert.sh
+
+            chmod +x /home/ec2-user/certbot/renew_cert.sh
+
+            (crontab -l 2>/dev/null; echo "0 3 * * 0 /home/ec2-user/certbot/renew_cert.sh >> /home/ec2-user/certbot/renew.log 2>&1") | crontab -
