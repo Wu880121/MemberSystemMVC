@@ -82,7 +82,7 @@ jobs:
              echo "CLIENT_ID=$CLIENT_ID" >> .env
              echo "REDIRECT_URI=$REDIRECT_URI" >> .env
              echo "CLIENT_SECRET=$CLIENT_SECRET" >> .env
-         env:
+        env:
             DB_HOST: ${{ secrets.DB_HOST }}
             DB_PORT: ${{ secrets.DB_PORT }}
             DB_DATABASE: ${{ secrets.DB_DATABASE }}
