@@ -95,7 +95,8 @@ try {
 			$city= $_POST['city'];
 			$street= $_POST['street'];
 			$id= $user['id'];
-			$userModel->UpdateUserProfile($name,$email,$tel,$birthdate,$sex,$city,$street,$id);		
+			$userModel->UpdateUserProfile($name,$email,$tel,$birthdate,$sex,$city,$street,$id);
+			
 		 }
 		 
 		 		if($_SERVER['REQUEST_METHOD']==='POST'&&isset($_FILES['avatar'])){
@@ -122,8 +123,7 @@ try {
 			}
 			
 			$ext = pathinfo($file['name'], PATHINFO_EXTENSION); //取附檔名
-			$uploadDir = __DIR__ . "/../../public/uploads/avatars/";
-
+			$uploadDir = __DIR__."/../../public/uploads/avatars/";
 			if(!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
 			
 			$filename = uniqid('avatar_', true).'.'.$ext;    //這邊的uniqid是指唯一，然後true等於產生隨機亂數
@@ -133,6 +133,15 @@ try {
 			if(move_uploaded_file($file['tmp_name'],$destination )){
 				
 				$userModel->UpdateUserProfileImagePath($relativePath, $email);
+				
+			$_SESSION['alert']=[
+			
+			'status'=>'UpdateUserProfileSuccess',
+			'message'=>'恭喜更改成功'
+			];
+		
+		header("Location: index.php?route=UserProfile");
+		exit;
 		  }
 		}		
 		 
