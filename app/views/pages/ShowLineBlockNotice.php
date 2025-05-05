@@ -15,17 +15,17 @@
             margin-top: 20px;
         }
         .hint {
-            font-size: 80px;
+            font-size: 60px;
             line-height: 1.6;
         }
 		
 		h2{
-			 font-size: 80px;
+			 font-size: 60px;
 		}
 		
 		a{
 			
-			 font-size: 80px;
+			 font-size: 60px;
 		}
     </style>
 </head>
