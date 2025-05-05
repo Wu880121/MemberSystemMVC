@@ -296,7 +296,7 @@ class AuthController
               setcookie('token', $token,   [
                                                                'expires' => time() + 3600,
                                                                'path' => '/',
-                                                               'secure' => false,       // ⚠️ 僅 HTTPS 時使用
+                                                               'secure' => true,       // ⚠️ 僅 HTTPS 時使用
                                                                'httponly' => true,     // ✅ 防止 XSS
                                                                'samesite' => 'Strict'  // ✅ 防止 CSRF
                                                              ] );  
@@ -353,7 +353,7 @@ class AuthController
             $UserTokenModel->deleteLoginToken($token);
 
             // 清空 cookie
-            setcookie('token', '', time() - 3600, '/', '', false, true);
+            setcookie('token', '', time() - 3600, '/', '', true, true);
         }
 
         // 清除 Session（如果你有用）
