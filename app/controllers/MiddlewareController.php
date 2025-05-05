@@ -5,6 +5,9 @@ class MiddlewareController
 {
     public function profile()
     {
+		
+		var_dump($_COOKIE); 
+		exit;
         AuthMiddleware::handle(); // 檢查是否有登入
         $user = $_SERVER['user'];
 

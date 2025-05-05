@@ -20,13 +20,13 @@ try{
 	
 }
 // 顯示錯誤（開發用）
-//ini_set('display_errors', 1);
-//error_reporting(E_ALL);
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 
 
 //正式環境請把ini_set('display_errors', 1); 和 error_reporting(E_ALL); 改成
 
-ini_set('display_errors', 0);
-error_reporting(E_ERROR | E_WARNING);
+//ini_set('display_errors', 0);
+//error_reporting(E_ERROR | E_WARNING);
 
 date_default_timezone_set('Asia/Taipei');
