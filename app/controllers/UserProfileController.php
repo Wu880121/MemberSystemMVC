@@ -97,9 +97,6 @@ try {
 			$id= $user['id'];
 			$userModel->UpdateUserProfile($name,$email,$tel,$birthdate,$sex,$city,$street,$id);
 			
-		 }
-		 
-		 		if($_SERVER['REQUEST_METHOD']==='POST'&&isset($_FILES['avatar'])){
 			
 			$file = $_FILES['avatar'];
 			   
@@ -143,8 +140,9 @@ try {
 		header("Location: index.php?route=UserProfile");
 		exit;
 		  }
-		}		
-		 
+			
+		 }
+	 
 	}		
 		
 			$_SESSION['alert']=[
