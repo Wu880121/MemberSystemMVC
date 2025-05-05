@@ -1,5 +1,5 @@
 <?php
-$route = $_GET['route'] ?? 'home';
+$route = empty($_GET['route']) ? 'home' : $_GET['route'];
 
 switch ($route) {
     case 'home':
