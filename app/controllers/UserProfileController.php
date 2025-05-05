@@ -19,7 +19,7 @@ try {
     $_SESSION['alert'] = [
 		
 		'status'=> 'Notoken',
-        'message' => $e->getMessage()
+        'message' => "請先登入"
     ];
     header("Location: index.php?route=login");
     exit;

@@ -91,10 +91,7 @@
 	  case "noToken":
         showError(message);
         break;				
-
-	  case "noToken":
-        showError(message);
-        break;				
+	
 		
 	  case "login_error":
         showError(message);
