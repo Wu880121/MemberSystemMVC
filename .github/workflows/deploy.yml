@@ -50,14 +50,6 @@ jobs:
             sudo chmod -R 755 /home/ec2-user/certbot/conf
 
 
-      - name: 🔥 刪除 EC2 上舊的專案資料夾
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.AWS_EC2_HOST }}
-          username: ${{ secrets.AWS_EC2_USER }}
-          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-          script: |
-            rm -rf /home/ec2-user/MemberSystemMVC
 
       - name: 📦 傳送專案檔案到 EC2
         uses: appleboy/scp-action@master
@@ -67,6 +59,31 @@ jobs:
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           source: "."
           target: "/home/ec2-user/MemberSystemMVC"
+          
+          
+      - name: ✅ 確保 uploads 資料夾存在
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AWS_EC2_HOST }}
+          username: ${{ secrets.AWS_EC2_USER }}
+          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+          script: |
+            mkdir -p /home/ec2-user/MemberSystemMVC/public/uploads/avatars
+            sudo chown -R ec2-user:www-data /home/ec2-user/MemberSystemMVC/public/uploads
+            sudo chmod -R 775 /home/ec2-user/MemberSystemMVC/public/uploads
+            
+      - name: ✅ 確保 log 資料夾存在
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AWS_EC2_HOST }}
+          username: ${{ secrets.AWS_EC2_USER }}
+          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+          script: |
+            mkdir -p /home/ec2-user/MemberSystemMVC/logs
+            sudo chown -R ec2-user:www-data /home/ec2-user/MemberSystemMVC/logs
+            sudo chmod -R 775 /home/ec2-user/MemberSystemMVC/logs
+
+
 
       - name: 📝 建立 .env 檔案
         run: |
@@ -155,6 +172,7 @@ jobs:
             sleep 5
             docker ps
             docker exec nginx_server nginx -t || echo "⚠️ Nginx 設定檔有錯誤"
+      
 
 
       - name: 📅 安裝 SSL 自動續期排程（crontab）
