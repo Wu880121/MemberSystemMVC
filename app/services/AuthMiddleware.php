@@ -5,7 +5,7 @@ class AuthMiddleware
 {
     public static function handle($requiredRole = null)
     {
-        $token = $_COOKIE['token']  ?? null;
+        $token = $_COOKIE['token'] ?? $_SESSION['token'] ?? null;
 
 		if (!$token) {
 			
