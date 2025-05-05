@@ -5,7 +5,8 @@ class MiddlewareController
 {
     public function profile()
     {
-
+		
+		exit("🟢 我現在在 MiddlewareController::profile()，這是最新版本。");
         AuthMiddleware::handle(); // 檢查是否有登入
         $user = $_SERVER['user'];
 
