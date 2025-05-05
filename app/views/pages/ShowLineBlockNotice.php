@@ -24,6 +24,6 @@
     <h2>⚠️ LINE 不支援 Google 登入</h2>
     <p class="hint">請點選右上角「⋯」<br>選擇「使用瀏覽器開啟」</p>
 	<p>或是複製網址</p>
-	<a href="http://keepgoingpiggy.com"></a>
+	<a href="https://keepgoingpiggy.com"></a>
 </body>
 </html>
