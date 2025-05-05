@@ -132,9 +132,10 @@ try {
 				$userModel->UpdateUserProfileImagePath($relativePath, $email);
 				$updated = true;
 			
-		 }
-		
-		             // ✅ 顯示成功提示（不管改資料還是圖片）
+		 }	
+      }
+	  
+	  		             // ✅ 顯示成功提示（不管改資料還是圖片）
              if ($updated) {
                  $_SESSION['alert'] = [
                      'status' => 'UpdateUserProfileSuccess',
@@ -144,7 +145,7 @@ try {
          
              header("Location: index.php?route=UserProfile");
              exit;
-      }
+	  
    }		
 		
 			$_SESSION['alert']=[
