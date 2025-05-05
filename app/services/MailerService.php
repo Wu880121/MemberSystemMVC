@@ -23,6 +23,8 @@ class MailerService
         $this->mailer->Port       = 587;
 		    // 重點在這行！設定郵件編碼為 UTF-8
         $this->mailer->CharSet = 'UTF-8';
+		$this->mailer->SMTPDebug = 2;
+        $this->mailer->Debugoutput = 'error_log';
 
         $this->mailer->setFrom('kocoimur0003@gmail.com', 'MemberSystem');
     }
