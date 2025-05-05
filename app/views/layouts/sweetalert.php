@@ -172,6 +172,7 @@
 		break;		
 		
 		case "RegisterVerifyNofoundVerifyToken":
+		case "Notoken":
          showDialogInfo(message) 
 		break;
 
@@ -179,7 +180,6 @@
 		case "UpdateUserProfileSuccess":
 		case "DoNotHaveEmail":
 		case "TokenHaveExpired":
-		case "Notoken":
          showDialogError(message) 
 		break;		
 
