@@ -95,16 +95,7 @@ try {
 			$city= $_POST['city'];
 			$street= $_POST['street'];
 			$id= $user['id'];
-			$userModel->UpdateUserProfile($name,$email,$tel,$birthdate,$sex,$city,$street,$id);
-			$_SESSION['alert']=[
-			
-			'status'=>'UpdateUserProfileSuccess',
-			'message'=>'恭喜更改成功'
-			];
-		
-		header("Location: index.php?route=UserProfile");
-		exit;
-			
+			$userModel->UpdateUserProfile($name,$email,$tel,$birthdate,$sex,$city,$street,$id);		
 		 }
 		 
 		 		if($_SERVER['REQUEST_METHOD']==='POST'&&isset($_FILES['avatar'])){
@@ -137,22 +128,7 @@ try {
 			$filename = uniqid('avatar_', true).'.'.$ext;    //這邊的uniqid是指唯一，然後true等於產生隨機亂數
 			$destination = $uploadDir . $filename;
 			$relativePath = 'uploads/avatars/' . $filename;  //用來存進資料庫，因為頁面要顯示
-			
-			if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                echo '<pre>';
-                print_r($_FILES['avatar']);
-                echo '</pre>';
-            
-                if ($_FILES['avatar']['error'] !== 0) {
-                    echo '⚠️ 上傳失敗，錯誤碼：' . $_FILES['avatar']['error'];
-                } else {
-                    echo '✅ 檔案接收成功，準備移動...';
-                }
-
-                exit;
-            }
-
-			
+				
 			if(move_uploaded_file($file['tmp_name'],$destination )){
 				
 				$userModel->UpdateUserProfileImagePath($relativePath, $email);
