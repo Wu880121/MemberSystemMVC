@@ -137,7 +137,9 @@ jobs:
             docker run -d --name my-mvc-php-app \
               --network my-net \
               --env-file /home/ec2-user/MemberSystemMVC/.env \
+              -v /home/ec2-user/MemberSystemMVC:/var/www/html \
               ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
+
 
             docker run -d --name nginx_server \
               --network my-net \
