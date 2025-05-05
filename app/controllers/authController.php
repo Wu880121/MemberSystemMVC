@@ -67,8 +67,8 @@ class AuthController
             $existing = $userModel->findByUsername($username);
 
 			$emailExisting = $userModel->findByEmail($email);
-			if($email==$emailExisting['email']&&$emailExisting['register_verify_status']==0){
-			
+			if (is_array($emailExisting) && $email == $emailExisting['email'] && $emailExisting['register_verify_status'] == 0) {
+
 			//這邊是要更新用的，因為有用第三方登入先存資料了，如果要在註冊一樣的東西，要更新，並且導去寄信驗證。
 			$token = bin2hex(random_bytes(32));
 			$tokenExpiredAt = date("Y-m-d H:i:s", strtotime("+ 30minutes"));
