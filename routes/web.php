@@ -151,7 +151,7 @@ switch ($route) {
 		// 在 router 判斷 google_login 時加入這段
          $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
          if (preg_match('/Line/i', $userAgent)) {
-             require_once '../app/views/static/line_block_notice.php';
+            (new StaticPageController)->ShowLineBlockNotice();
              exit;
          }		
 		if ($_SERVER['REQUEST_METHOD']==='GET'){
