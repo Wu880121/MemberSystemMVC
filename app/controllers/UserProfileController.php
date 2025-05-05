@@ -122,7 +122,8 @@ try {
 			}
 			
 			$ext = pathinfo($file['name'], PATHINFO_EXTENSION); //取附檔名
-			$uploadDir = __DIR__."/../uploads/avatars/";
+			$uploadDir = __DIR__ . "/../../public/uploads/avatars/";
+
 			if(!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
 			
 			$filename = uniqid('avatar_', true).'.'.$ext;    //這邊的uniqid是指唯一，然後true等於產生隨機亂數
