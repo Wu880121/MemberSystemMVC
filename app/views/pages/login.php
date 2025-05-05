@@ -35,7 +35,7 @@
       </div>
 	  
 	  <div class="google-login">
-		<a href="index.php?route=google_login" target="_blank">
+		<a href="index.php?route=google_login" >
 		
 			<img src="/assets/images/web_light_rd_na@2x.png"  alt="Goole登入"> 
 		</a>
