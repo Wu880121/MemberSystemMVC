@@ -1,6 +1,16 @@
 <?php
 // public/index.php
 
+ob_start(); // 啟用輸出緩衝
+
+// ...原本程式
+
+register_shutdown_function(function () {
+    $output = ob_get_clean(); // 取得所有輸出
+    file_put_contents('debug_output.html', $output); // 寫入檔案查看到底誰印的
+});
+
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../core/helpers.php';
 
