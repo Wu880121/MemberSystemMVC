@@ -96,7 +96,7 @@ try {
 			$street= $_POST['street'];
 			$id= $user['id'];
 			$userModel->UpdateUserProfile($name,$email,$tel,$birthdate,$sex,$city,$street,$id);
-			
+			$updated = true;
 			
 			$file = $_FILES['avatar'];
 			   
@@ -130,20 +130,22 @@ try {
 			if(move_uploaded_file($file['tmp_name'],$destination )){
 				
 				$userModel->UpdateUserProfileImagePath($relativePath, $email);
-				
-			$_SESSION['alert']=[
-			
-			'status'=>'UpdateUserProfileSuccess',
-			'message'=>'恭喜更改成功'
-			];
-		
-		header("Location: index.php?route=UserProfile");
-		exit;
-		  }
+				$updated = true;
 			
 		 }
-	 
-	}		
+		
+		             // ✅ 顯示成功提示（不管改資料還是圖片）
+             if ($updated) {
+                 $_SESSION['alert'] = [
+                     'status' => 'UpdateUserProfileSuccess',
+                     'message' => '個人資料更新成功！'
+                 ];
+             }
+         
+             header("Location: index.php?route=UserProfile");
+             exit;
+      }
+   }		
 		
 			$_SESSION['alert']=[
 			
@@ -159,4 +161,4 @@ try {
 
 
 
-?>
+?>	
