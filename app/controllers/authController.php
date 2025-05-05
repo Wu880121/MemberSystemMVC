@@ -298,7 +298,7 @@ class AuthController
                                                                'path' => '/',
                                                                'secure' => true,       // ⚠️ 僅 HTTPS 時使用
                                                                'httponly' => true,     // ✅ 防止 XSS
-                                                               'samesite' => 'Strict'  // ✅ 防止 CSRF
+                                                               'samesite' => 'Lax'  // ✅ 防止 CSRF
                                                              ] );  
 			  
 			  $userModel->resetFailedAttempts($user['id']); //這邊是成功登入的話，刪掉登入錯誤次數的地方。

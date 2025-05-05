@@ -59,9 +59,10 @@ class GooleLoginCallback {
                                                                'path' => '/',
                                                                'secure' => true,       // ⚠️ 僅 HTTPS 時使用
                                                                'httponly' => true,     // ✅ 防止 XSS
-                                                               'samesite' => 'Strict'  // ✅ 防止 CSRF
+                                                               'samesite' => 'Lax'  // ✅ 防止 CSRF
                                                              ] );
 					$_SESSION['token'] = $token; // ✨ 重點：先存在 session 裡
+					
 				   header("Location: index.php?route=middleware");
 				   exit;
 			   }else{
@@ -93,9 +94,10 @@ class GooleLoginCallback {
                                                                'path' => '/',
                                                                'secure' => true,       // ⚠️ 僅 HTTPS 時使用
                                                                'httponly' => true,     // ✅ 防止 XSS
-                                                               'samesite' => 'Strict'  // ✅ 防止 CSRF
+                                                               'samesite' => 'Lax'  // ✅ 防止 CSRF
                                                              ] );  
 					$_SESSION['token'] = $token; // ✨ 重點：先存在 session 裡
+					
 					header("Location: index.php?route=middleware");
 					exit;}
 			
