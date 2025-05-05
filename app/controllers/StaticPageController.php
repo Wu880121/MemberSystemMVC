@@ -22,4 +22,10 @@ class StaticPageController
 		
 	}
 	
+		public function ShowLineBlockNotice(){
+		
+		include __DIR__ . "/../views/pages/ShowLineBlockNotice.php";
+		
+	}
+	
 }
