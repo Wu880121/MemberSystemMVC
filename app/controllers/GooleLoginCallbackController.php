@@ -57,7 +57,7 @@ class GooleLoginCallback {
               setcookie('token', $token,   [
                                                                'expires' => time() + 3600,
                                                                'path' => '/',
-                                                               'secure' => false,       // ⚠️ 僅 HTTPS 時使用
+                                                               'secure' => true,       // ⚠️ 僅 HTTPS 時使用
                                                                'httponly' => true,     // ✅ 防止 XSS
                                                                'samesite' => 'Strict'  // ✅ 防止 CSRF
                                                              ] );
@@ -90,7 +90,7 @@ class GooleLoginCallback {
               setcookie('token', $token,   [
                                                                'expires' => time() + 3600,
                                                                'path' => '/',
-                                                               'secure' => false,       // ⚠️ 僅 HTTPS 時使用
+                                                               'secure' => true,       // ⚠️ 僅 HTTPS 時使用
                                                                'httponly' => true,     // ✅ 防止 XSS
                                                                'samesite' => 'Strict'  // ✅ 防止 CSRF
                                                              ] );  
