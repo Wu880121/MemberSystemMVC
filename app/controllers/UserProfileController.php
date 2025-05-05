@@ -120,7 +120,7 @@ try {
                          // [size] => 14352                  // 檔案大小（位元組）
                         // )
 						
-			if($_FILES['error']===0){
+			if($file['error']){
 				
 				$allowed = ['image/jpeg', 'image/png', 'image/gif'];
 				if (!in_array($file['type'], $allowed)){
