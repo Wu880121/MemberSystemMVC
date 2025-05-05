@@ -8,3 +8,4 @@ class HomeController
     {
 			include_once __DIR__."/../views/pages/home.php";
   }
+}
