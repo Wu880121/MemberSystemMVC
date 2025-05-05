@@ -45,9 +45,9 @@
           <li><a href="index.php?route=UserProfile">Profile</a></li>
           <li><a href="index.php?route=map">AboutUs</a></li>
           <?php if (isset($_COOKIE['token'])): ?>
-            <li><a href="logout.php">登出</a></li>
+            <li><a href="index.php?route=logout">登出</a></li>
           <?php else: ?>
-            <li><a href="login.php">登入</a></li>
+            <li><a href="index.php?route=login">登入</a></li>
           <?php endif; ?>
         </ul>
       </div>
