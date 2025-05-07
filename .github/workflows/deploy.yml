@@ -1,4 +1,4 @@
-name: CI/CD Pipeline for PHP MVC + Nginx
+name: CI/CD Pipeline for PHP MVC + Nginx (Docker Image Deploy)
 
 on:
   push:
@@ -10,113 +10,49 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: ✅ Checkout 最新程式碼
+      - name: ✅ Checkout Code
         uses: actions/checkout@v3
 
-      - name: 🔐 SSH 登入 EC2 並測試
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.AWS_EC2_HOST }}
-          username: ${{ secrets.AWS_EC2_USER }}
-          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-          script: echo "✅ 成功登入 EC2"
+      - name: ⏰ 設定 Docker 圖像 tag 為当前日期和時間
+        id: date
+        run: echo "TAG=$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_ENV
 
-      - name: 🔐 解碼 SSH 金鑰
+      - name: 🔐 Docker 登入
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.AWS_EC2_PRIVATE_KEY_BASE64 }}" | base64 -d > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.AWS_EC2_HOST }} >> ~/.ssh/known_hosts
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      - name: 🛠️ 建立 certbot 資料夾（若不存在）
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.AWS_EC2_HOST }}
-          username: ${{ secrets.AWS_EC2_USER }}
-          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-          script: |
-            mkdir -p /home/ec2-user/certbot/www
-            mkdir -p /home/ec2-user/certbot/conf
-      
-      
-      - name: 🔐 設定憑證資料夾權限（for Nginx 掛載）
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.AWS_EC2_HOST }}
-          username: ${{ secrets.AWS_EC2_USER }}
-          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-          script: |
-            sudo chown -R ec2-user:ec2-user /home/ec2-user/certbot
-            sudo chmod -R 755 /home/ec2-user/certbot/conf
-
-
-
-      - name: 📦 使用 rsync 傳送程式檔案（排除 public/uploads）
+      - name: 🚀 建立並推送含時間的 Docker 圖像 tag
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.AWS_EC2_PRIVATE_KEY_BASE64 }}" | base64 -d > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.AWS_EC2_HOST }} >> ~/.ssh/known_hosts
-
-          rsync -avz \
-            --exclude 'public/uploads/' \
-            --exclude 'logs/' \
-            -e "ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no" \
-            ./ ${{ secrets.AWS_EC2_USER }}@${{ secrets.AWS_EC2_HOST }}:/home/ec2-user/MemberSystemMVC
-
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:${{ env.TAG }} .
+          docker tag ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:${{ env.TAG }} ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:${{ env.TAG }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
           
-          
-      - name: ✅ 確保 uploads 資料夾存在
+      - name: 🗂️ 建立專案與 public 資料夾（如不存在）
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.AWS_EC2_HOST }}
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           script: |
-            mkdir -p /home/ec2-user/MemberSystemMVC/public/uploads/avatars
-            sudo chown -R ec2-user:www-data /home/ec2-user/MemberSystemMVC/public/uploads
-            sudo chmod -R 775 /home/ec2-user/MemberSystemMVC/public/uploads
-            
-      - name: ✅ 確保 log 資料夾存在
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.AWS_EC2_HOST }}
-          username: ${{ secrets.AWS_EC2_USER }}
-          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-          script: |
-            mkdir -p /home/ec2-user/MemberSystemMVC/logs
-            sudo chown -R ec2-user:www-data /home/ec2-user/MemberSystemMVC/logs
-            sudo chmod -R 775 /home/ec2-user/MemberSystemMVC/logs
-
-
+            mkdir -p /home/ec2-user/MemberSystemMVC/public
+            mkdir -p /home/ec2-user/MemberSystemMVC/nginx
+            sudo chown -R ec2-user:www-data /home/ec2-user/MemberSystemMVC
+            sudo chmod -R 775 /home/ec2-user/MemberSystemMVC    
 
       - name: 📝 建立 .env 檔案
         run: |
-             rm -f .env
-             echo "DB_HOST=$DB_HOST" >> .env
-             echo "DB_PORT=$DB_PORT" >> .env
-             echo "DB_DATABASE=$DB_DATABASE" >> .env
-             echo "DB_USERNAME=$DB_USERNAME" >> .env
-             echo "DB_PASSWORD=$DB_PASSWORD" >> .env
-             echo "JWT_ALGO=$JWT_ALGO" >> .env
-             echo "SUPER_SECRET_KEY=$SUPER_SECRET_KEY" >> .env
-             echo "PHP_MAILER=$PHP_MAILER" >> .env
-             echo "CLIENT_ID=$CLIENT_ID" >> .env
-             echo "REDIRECT_URI=$REDIRECT_URI" >> .env
-             echo "CLIENT_SECRET=$CLIENT_SECRET" >> .env
-        env:
-            DB_HOST: ${{ secrets.DB_HOST }}
-            DB_PORT: ${{ secrets.DB_PORT }}
-            DB_DATABASE: ${{ secrets.DB_DATABASE }}
-            DB_USERNAME: ${{ secrets.DB_USERNAME }}
-            DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-            JWT_ALGO: ${{ secrets.JWT_ALGO }}
-            SUPER_SECRET_KEY: ${{ secrets.SUPER_SECRET_KEY }}
-            PHP_MAILER: ${{ secrets.PHP_MAILER }}
-            CLIENT_ID: ${{ secrets.CLIENT_ID }}
-            REDIRECT_URI: ${{ secrets.REDIRECT_URI }}
-            CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-
+          echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
+          echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
+          echo "DB_DATABASE=${{ secrets.DB_DATABASE }}" >> .env
+          echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "JWT_ALGO=${{ secrets.JWT_ALGO }}" >> .env
+          echo "SUPER_SECRET_KEY=${{ secrets.SUPER_SECRET_KEY }}" >> .env
+          echo "PHP_MAILER=${{ secrets.PHP_MAILER }}" >> .env
+          echo "CLIENT_ID=${{ secrets.CLIENT_ID }}" >> .env
+          echo "REDIRECT_URI=${{ secrets.REDIRECT_URI }}" >> .env
+          echo "CLIENT_SECRET=${{ secrets.CLIENT_SECRET }}" >> .env
 
       - name: 📤 上傳 .env 到 EC2
         uses: appleboy/scp-action@master
@@ -127,17 +63,17 @@ jobs:
           source: ".env"
           target: "/home/ec2-user/MemberSystemMVC"
 
-      - name: 🔐 Docker 登入
-        run: |
-          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+      - name: 📄 上傳 Nginx 設定檔到 EC2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.AWS_EC2_HOST }}
+          username: ${{ secrets.AWS_EC2_USER }}
+          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+          source: "nginx/default.conf"
+          target: "/home/ec2-user/MemberSystemMVC/nginx"
 
-      - name: 🚀 建立並推送 Docker Image
-        run: |
-          docker build -t my-mvc-php-app .
-          docker tag my-mvc-php-app ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
 
-      - name: 🚢 部署 Docker 到 AWS EC2（PHP + Nginx + SSL）
+      - name: 🌐 部署 Docker 圖像至 EC2
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.AWS_EC2_HOST }}
@@ -146,22 +82,25 @@ jobs:
           script: |
             sudo systemctl start docker
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-            docker pull ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
+            docker pull ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:${{ env.TAG }}
 
             docker stop my-mvc-php-app nginx_server || true
             docker rm my-mvc-php-app nginx_server || true
 
             docker network inspect my-net >/dev/null 2>&1 || docker network create my-net
 
-            ls -l /home/ec2-user/MemberSystemMVC/nginx/default.conf || exit 1
-            ls -l /home/ec2-user/certbot/conf/live/keepgoingpiggy.com/fullchain.pem || exit 1
+            mkdir -p /home/ec2-user/MemberSystemMVC/public/uploads/avatars
+            mkdir -p /home/ec2-user/MemberSystemMVC/logs
+            sudo chown -R ec2-user:www-data /home/ec2-user/MemberSystemMVC/public/uploads
+            sudo chmod -R 775 /home/ec2-user/MemberSystemMVC/public/uploads
+            sudo chown -R ec2-user:www-data /home/ec2-user/MemberSystemMVC/logs
+            sudo chmod -R 775 /home/ec2-user/MemberSystemMVC/logs
 
             docker run -d --name my-mvc-php-app \
               --network my-net \
               --env-file /home/ec2-user/MemberSystemMVC/.env \
               -v /home/ec2-user/MemberSystemMVC:/var/www/html \
-              ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
-
+              ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:${{ env.TAG }}
 
             docker run -d --name nginx_server \
               --network my-net \
@@ -173,14 +112,9 @@ jobs:
               -v /home/ec2-user/certbot/conf:/etc/letsencrypt \
               nginx
 
+            docker exec nginx_server nginx -t || echo "⚠️ Nginx 配置檢查失敗"
 
-            sleep 5
-            docker ps
-            docker exec nginx_server nginx -t || echo "⚠️ Nginx 設定檔有錯誤"
-      
-
-
-      - name: 📅 安裝 SSL 自動續期排程（crontab）
+      - name: 📅 設定 SSL 自動續期排程 (crontab)
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.AWS_EC2_HOST }}
