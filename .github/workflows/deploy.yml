@@ -71,6 +71,18 @@ jobs:
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           source: "nginx/default.conf"
           target: "/home/ec2-user/MemberSystemMVC/nginx"
+      
+      - name: 📁 備份 .env 檔案到副本資料夾
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AWS_EC2_HOST }}
+          username: ${{ secrets.AWS_EC2_USER }}
+          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+          script: |
+            mkdir -p /home/ec2-user/MemberSystemMVC_backup
+            cp /home/ec2-user/MemberSystemMVC/.env /home/ec2-user/MemberSystemMVC_backup/.env.bak
+            sudo chown -R ec2-user:www-data /home/ec2-user/MemberSystemMVC_backup
+            sudo chmod -R 775 /home/ec2-user/MemberSystemMVC_backup
 
 
       - name: 🌐 部署 Docker 圖像至 EC2
