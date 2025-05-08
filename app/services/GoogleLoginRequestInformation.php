@@ -7,6 +7,8 @@ public function RequestInformation(){
 	
 $client_id = $_ENV['CLIENT_ID']??NULL;     //client_id      !!用getenv抓不到的話就用$_ENV[]抓環境變數，系統問題。
 $redirect_uri  = $_ENV['REDIRECT_URI'] ?? null;;  //redirect_uri
+var_dump($_ENV['REDIRECT_URI']);
+exit;
 $scope = 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email';
 $state = bin2hex(random_bytes(16)); // 建議儲存在 session 裡防 CSRF
 
