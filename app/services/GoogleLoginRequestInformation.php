@@ -11,6 +11,7 @@ $redirect_uri  = $_ENV['REDIRECT_URI'] ?? null;;  //redirect_uri
 $scope = 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email';
 $state = bin2hex(random_bytes(16)); // 建議儲存在 session 裡防 CSRF
 
+session_start();
 // 儲存 state 到 session 做比對
 $_SESSION['oauth2_state'] = $state;
 
