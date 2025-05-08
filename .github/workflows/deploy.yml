@@ -74,19 +74,10 @@ jobs:
           host: ${{ secrets.AWS_EC2_HOST }}
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-          source: "./nginx/default.conf"
+          source: "nginx/default.conf"
           target: "/home/ec2-user/MemberSystemMVC/nginx/"
 
       
-
-      - name: 📄 上傳 Nginx 設定檔到 EC2
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.AWS_EC2_HOST }}
-          username: ${{ secrets.AWS_EC2_USER }}
-          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-          source: "nginx/default.conf"
-          target: "/home/ec2-user/MemberSystemMVC/nginx"
       
       - name: 📁 備份 .env 檔案到副本資料夾
         uses: appleboy/ssh-action@master
