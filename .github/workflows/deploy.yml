@@ -116,7 +116,10 @@ jobs:
           script: |
             sudo systemctl start docker
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-            docker pull ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
+
+            # ✅ 先強制拉當次的時間戳 TAG image，保證就是這次 push 的
+            docker image rm -f ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:${{ env.TAG }} || true
+            docker pull ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:${{ env.TAG }}
 
             docker stop my-mvc-php-app nginx_server || true
             docker rm my-mvc-php-app nginx_server || true
@@ -133,23 +136,17 @@ jobs:
             docker run -d --name my-mvc-php-app \
               --network my-net \
               -v /home/ec2-user/MemberSystemMVC/.env:/var/www/html/.env \
-              ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
-
-
-
+              ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:${{ env.TAG }}
 
             docker run -d --name nginx_server \
               --network my-net \
-              -p 80:80 \
-              -p 443:443 \
+              -p 80:80 -p 443:443 \
               -v /home/ec2-user/MemberSystemMVC/public:/var/www/html \
               -v /home/ec2-user/MemberSystemMVC/nginx/default.conf:/etc/nginx/conf.d/default.conf \
               -v /home/ec2-user/certbot/www:/var/www/certbot \
               -v /home/ec2-user/certbot/conf:/etc/letsencrypt \
               nginx
-
-
-            docker exec nginx_server nginx -t || echo "⚠️ Nginx 配置檢查失敗"
+      
 
       - name: 📅 設定 SSL 自動續期排程 (crontab)
         uses: appleboy/ssh-action@master
