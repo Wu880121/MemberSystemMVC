@@ -122,7 +122,6 @@ jobs:
 
             docker run -d --name my-mvc-php-app \
               --network host \
-              --env-file /home/ec2-user/MemberSystemMVC/.env \
               -v /home/ec2-user/MemberSystemMVC/.env:/var/www/html/.env \
               ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:${{ env.TAG }}
 
