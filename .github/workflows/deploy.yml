@@ -120,8 +120,8 @@ jobs:
             echo "📥 重新拉取 image: latest"
             docker pull ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
 
-            echo "🧹 停止並刪除現有容器（若存在）..."
-            docker stop my-mvc-php-app nginx_server || true
+           echo "🧹 停止並刪除現有容器（若存在）..."
+           docker stop my-mvc-php-app nginx_server || true
            docker rm my-mvc-php-app nginx_server || true
 
             echo "🌐 建立 Docker 網路（如果尚未建立）"
