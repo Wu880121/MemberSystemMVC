@@ -1,16 +1,19 @@
-# 使用 PHP 8.1 + FPM 基礎映像
+# 使用 PHP 8.1 + FPM 作為 base image
 FROM php:8.1-fpm
 
-# 安裝 PDO MySQL Extension
+# 安裝 PDO MySQL extension
 RUN docker-php-ext-install pdo pdo_mysql
 
-# 設定容器內的工作目錄
+# 設定工作目錄
 WORKDIR /var/www/html
 
-# 複製所有程式碼進工作目錄（包括 app、public、routes、.env 等）
+# ✅ 清除任何 base image 中可能存在的檔案
+RUN rm -rf /var/www/html/*
+
+# 複製當前目錄下的所有檔案到容器中
 COPY . /var/www/html
 
-# 設定檔案擁有權（給 www-data 使用）
+# 設定檔案擁有權限
 RUN chown -R www-data:www-data /var/www/html
 
 # 預設啟動 php-fpm
