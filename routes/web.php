@@ -148,6 +148,7 @@ switch ($route) {
 		case 'google_login':
 		require_once __DIR__. '/../app/services/GoogleLoginRequestInformation.php';
 		require_once __DIR__ . '/../app/controllers/StaticPageController.php';
+		echo "✅ 有進來 google_login router"; exit;
 		// 在 router 判斷 google_login 時加入這段
          $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
          if (preg_match('/Line/i', $userAgent)) {
