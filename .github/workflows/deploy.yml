@@ -136,6 +136,18 @@ jobs:
 
             echo "⏳ 等待 PHP 容器完全啟動..."
             sleep 5
+            
+      - name: ⚙️ 修正 PHP 上傳暫存資料夾
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AWS_EC2_HOST }}
+          username: ${{ secrets.AWS_EC2_USER }}
+          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+          script: |
+            docker exec my-mvc-php-app bash -c "\
+            echo -e 'upload_tmp_dir=/tmp\nupload_max_filesize=10M\npost_max_size=20M' > /usr/local/etc/php/conf.d/uploads.ini && \
+            kill -USR2 1"
+
 
             echo "🌐 啟動 Nginx 容器..."
             docker run -d --name nginx_server \
