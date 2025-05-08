@@ -22,8 +22,7 @@ $url = 'https://accounts.google.com/o/oauth2/v2/auth?' . http_build_query([
     'state' =>$state,
     'access_type' => 'online',
 ]);
-echo $url;
-exit;
+
 header('Location: ' . $url);
 exit;
 }
