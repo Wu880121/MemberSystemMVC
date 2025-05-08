@@ -86,10 +86,10 @@ jobs:
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           script: |
-            mkdir -p /home/ec2-user/MemberSystemMVC_backup
-            cp /home/ec2-user/MemberSystemMVC/.env /home/ec2-user/MemberSystemMVC_backup/.env.bak
-            sudo chown -R ec2-user:www-data /home/ec2-user/MemberSystemMVC_backup
-            sudo chmod -R 775 /home/ec2-user/MemberSystemMVC_backup
+            mkdir -p /home/ec2-user/MemberSystemMVC.env_backup
+            cp /home/ec2-user/MemberSystemMVC/.env /home/ec2-user/MemberSystemMVC_backup.env/.env.bak
+            sudo chown -R ec2-user:www-data /home/ec2-user/MemberSystemMVC_backup.env
+            sudo chmod -R 775 /home/ec2-user/MemberSystemMVC_backup.env
 
 
       - name: 🌐 部署 Docker 圖像至 EC2
