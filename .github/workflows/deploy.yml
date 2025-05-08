@@ -105,30 +105,36 @@ jobs:
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           script: |
-            TAG=${{ env.TAG }}  # ✅ 傳入時間戳 TAG
-            echo "🚀 即將部署的 image tag: $TAG"
+            TAG=${{ env.TAG }}
+            IMAGE=${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:$TAG
+            echo "🚀 即將部署的 image: $IMAGE"
 
             sudo systemctl start docker
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-            echo "📥 拉取 image: ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:$TAG"
-            docker pull ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
+            echo "🔥 刪除舊的 image（若有）..."
+            docker image rm -f $IMAGE || true
 
+            echo "📥 重新拉取 image: $IMAGE"
+            docker pull $IMAGE
+
+            echo "🧹 停止並刪除現有容器（若存在）..."
             docker stop my-mvc-php-app nginx_server || true
             docker rm my-mvc-php-app nginx_server || true
 
+            echo "🌐 建立 Docker 網路（如果尚未建立）"
             docker network inspect my-net >/dev/null 2>&1 || docker network create my-net
 
-            echo "🐘 啟動 PHP 容器 my-mvc-php-app..."
+            echo "🐘 啟動 PHP 容器..."
             docker run -d --name my-mvc-php-app \
               --network my-net \
               -v /home/ec2-user/MemberSystemMVC/.env:/var/www/html/.env \
-              ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
+              $IMAGE
 
-            echo "⏳ 等待 my-mvc-php-app 完全啟動..."
+            echo "⏳ 等待 PHP 容器完全啟動..."
             sleep 5
 
-            echo "🌐 啟動 nginx_server..."
+            echo "🌐 啟動 Nginx 容器..."
             docker run -d --name nginx_server \
               --network my-net \
               -p 80:80 -p 443:443 \
@@ -138,8 +144,9 @@ jobs:
               -v /home/ec2-user/certbot/conf:/etc/letsencrypt \
               nginx
 
-            echo "🔍 驗證 nginx 設定"
+            echo "🔍 驗證 Nginx 設定檔..."
             docker exec nginx_server nginx -t || echo "⚠️ Nginx 配置錯誤"
+
      
 
       - name: 📅 設定 SSL 繼續 cron
