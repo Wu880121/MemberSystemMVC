@@ -14,8 +14,7 @@ $state = bin2hex(random_bytes(16)); // 建議儲存在 session 裡防 CSRF
 // 儲存 state 到 session 做比對
 $_SESSION['oauth2_state'] = $state;
 
-var_dump($_SESSION['oauth2_state']);
-exit;
+
 $url = 'https://accounts.google.com/o/oauth2/v2/auth?' . http_build_query([
     'client_id' => $client_id,
     'redirect_uri' => $redirect_uri,
