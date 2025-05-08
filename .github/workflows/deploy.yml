@@ -58,15 +58,15 @@ jobs:
           EOF
 
 
-
       - name: 📤 上傳 .env 到 EC2
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.AWS_EC2_HOST }}
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-          source: ".env"
+          source: "MemberSystemMVC/.env"
           target: "/home/ec2-user/MemberSystemMVC"
+
           
       - name: 📁 檢查並建立 nginx 資料夾（若不存在）
         uses: appleboy/ssh-action@master
