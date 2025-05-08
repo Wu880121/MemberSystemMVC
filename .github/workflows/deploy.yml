@@ -23,10 +23,17 @@ jobs:
 
       - name: 🚀 建立並推送含時間的 Docker 圖像 tag
         run: |
+          # 如果本機已有 latest tag，先移除
+          docker image rm -f ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest || true
+
+          # 重新 build image（含時間 tag）
           docker build -t ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:${{ env.TAG }} .
+      
+          # 指定 latest tag 並 push
           docker tag ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:${{ env.TAG }} ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:${{ env.TAG }}
           docker push ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
+
           
       - name: 🗂️ 建立專案與 public 資料夾（如不存在）
         uses: appleboy/ssh-action@master
