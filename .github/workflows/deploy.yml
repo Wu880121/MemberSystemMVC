@@ -98,48 +98,48 @@ jobs:
             sudo chown -R ec2-user:www-data /home/ec2-user/MemberSystemMVC_backup.env
             sudo chmod -R 775 /home/ec2-user/MemberSystemMVC_backup.env
 
-      - name: 🌐 部署 Docker image
-       uses: appleboy/ssh-action@master
-       with:
-         host: ${{ secrets.AWS_EC2_HOST }}
-         username: ${{ secrets.AWS_EC2_USER }}
-         key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-         script: |
-           TAG=${{ env.TAG }}  # ✅ 傳入時間戳 TAG
-           echo "🚀 即將部署的 image tag: $TAG"
+       - name: 🌐 部署 Docker image
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AWS_EC2_HOST }}
+          username: ${{ secrets.AWS_EC2_USER }}
+          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+          script: |
+            TAG=${{ env.TAG }}  # ✅ 傳入時間戳 TAG
+            echo "🚀 即將部署的 image tag: $TAG"
 
-           sudo systemctl start docker
-           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+            sudo systemctl start docker
+            echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-           echo "📥 拉取 image: ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:$TAG"
-           docker pull ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:$TAG
+            echo "📥 拉取 image: ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:$TAG"
+            docker pull ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:$TAG
 
-           docker stop my-mvc-php-app nginx_server || true
-           docker rm my-mvc-php-app nginx_server || true
+            docker stop my-mvc-php-app nginx_server || true
+            docker rm my-mvc-php-app nginx_server || true
 
-           docker network inspect my-net >/dev/null 2>&1 || docker network create my-net
+            docker network inspect my-net >/dev/null 2>&1 || docker network create my-net
 
-           echo "🐘 啟動 PHP 容器 my-mvc-php-app..."
-           docker run -d --name my-mvc-php-app \
-             --network my-net \
-             -v /home/ec2-user/MemberSystemMVC/.env:/var/www/html/.env \
-             ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:$TAG
+            echo "🐘 啟動 PHP 容器 my-mvc-php-app..."
+            docker run -d --name my-mvc-php-app \
+              --network my-net \
+              -v /home/ec2-user/MemberSystemMVC/.env:/var/www/html/.env \
+              ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:$TAG
 
-           echo "⏳ 等待 my-mvc-php-app 完全啟動..."
-           sleep 5
+            echo "⏳ 等待 my-mvc-php-app 完全啟動..."
+            sleep 5
 
-           echo "🌐 啟動 nginx_server..."
-           docker run -d --name nginx_server \
-             --network my-net \
-             -p 80:80 -p 443:443 \
-             -v /home/ec2-user/MemberSystemMVC/public:/var/www/html \
-             -v /home/ec2-user/MemberSystemMVC/nginx/default.conf:/etc/nginx/conf.d/default.conf \
-             -v /home/ec2-user/certbot/www:/var/www/certbot \
-             -v /home/ec2-user/certbot/conf:/etc/letsencrypt \
-             nginx
+            echo "🌐 啟動 nginx_server..."
+            docker run -d --name nginx_server \
+              --network my-net \
+              -p 80:80 -p 443:443 \
+              -v /home/ec2-user/MemberSystemMVC/public:/var/www/html \
+              -v /home/ec2-user/MemberSystemMVC/nginx/default.conf:/etc/nginx/conf.d/default.conf \
+              -v /home/ec2-user/certbot/www:/var/www/certbot \
+              -v /home/ec2-user/certbot/conf:/etc/letsencrypt \
+              nginx
 
-           echo "🔍 驗證 nginx 設定"
-           docker exec nginx_server nginx -t || echo "⚠️ Nginx 配置錯誤"
+            echo "🔍 驗證 nginx 設定"
+            docker exec nginx_server nginx -t || echo "⚠️ Nginx 配置錯誤"
      
 
       - name: 📅 設定 SSL 繼續 cron
