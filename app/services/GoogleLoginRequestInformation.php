@@ -4,7 +4,8 @@ class GoogleLoginRequestInformation{
 
 
 public function RequestInformation(){
-
+echo $url;
+exit;
 $client_id = $_ENV['CLIENT_ID']??NULL;     //client_id      !!用getenv抓不到的話就用$_ENV[]抓環境變數，系統問題。
 $redirect_uri  = $_ENV['REDIRECT_URI'] ?? null;;  //redirect_uri
 $scope = 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email';
