@@ -131,7 +131,6 @@ jobs:
             docker run -d --name my-mvc-php-app \
               --network my-net \
               -v /home/ec2-user/MemberSystemMVC/.env:/var/www/html/.env \
-              -v /home/ec2-user/MemberSystemMVC/public/uploads/avatars:/var/www/html/uploads/avatars \
               ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
 
             echo "⏳ 等待 PHP 容器完全啟動..."
@@ -142,7 +141,7 @@ jobs:
               --network my-net \
               -p 80:80 -p 443:443 \
               -v /home/ec2-user/MemberSystemMVC/public:/var/www/html \
-              -v /home/ec2-user/MemberSystemMVC/public/uploads/avatars:/var/www/html/uploads/avatars \
+              -v /home/ec2-user/MemberSystemMVC/public/uploads/avatars:/var/www/html/public/uploads/avatars \
               -v /home/ec2-user/MemberSystemMVC/nginx/default.conf:/etc/nginx/conf.d/default.conf \
               -v /home/ec2-user/certbot/www:/var/www/certbot \
               -v /home/ec2-user/certbot/conf:/etc/letsencrypt \
