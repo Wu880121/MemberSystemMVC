@@ -98,7 +98,7 @@ jobs:
             sudo chown -R ec2-user:www-data /home/ec2-user/MemberSystemMVC_backup.env
             sudo chmod -R 775 /home/ec2-user/MemberSystemMVC_backup.env
 
-       - name: 🌐 部署 Docker image
+      - name: 🌐 部署 Docker image
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.AWS_EC2_HOST }}
