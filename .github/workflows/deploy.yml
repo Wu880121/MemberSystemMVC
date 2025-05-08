@@ -86,7 +86,7 @@ jobs:
           host: ${{ secrets.AWS_EC2_HOST }}
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-          source: "default.conf"
+          source: "nginx/default.conf"
           target: "/home/ec2-user/MemberSystemMVC/nginx"
       
       - name: 📁 備份 .env 檔案到副本資料夾
