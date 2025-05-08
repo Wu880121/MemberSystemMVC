@@ -12,8 +12,8 @@ class JwtService
     private static $algo;
 
     public static function init() {
-        self::$secretKey = getenv('SUPER_SECRET_KEY');
-        self::$algo = getenv('JWT_ALGO');
+        self::$secretKey = $_ENV['SUPER_SECRET_KEY'];
+        self::$algo = $_ENV['JWT_ALGO'];
     }
 
 
