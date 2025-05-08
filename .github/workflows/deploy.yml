@@ -21,19 +21,16 @@ jobs:
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      - name: 🚀 建立並推送含時間的 Docker 圖像 tag
+      - name: 🚀 建立並推送 Docker 圖像
         run: |
-          # ✅ 應該在這裡清除 local 的舊 latest，避免誤 tag 推錯
           docker image rm -f ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest || true
-
           docker build -t ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:${{ env.TAG }} .
           docker tag ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:${{ env.TAG }} ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:${{ env.TAG }}
           docker push ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
           docker image prune -f
 
-          
-      - name: 🗂️ 建立專案與 public 資料夾（如不存在）
+      - name: 📂 建立目錄
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.AWS_EC2_HOST }}
@@ -43,9 +40,9 @@ jobs:
             mkdir -p /home/ec2-user/MemberSystemMVC/public
             mkdir -p /home/ec2-user/MemberSystemMVC/nginx
             sudo chown -R ec2-user:www-data /home/ec2-user/MemberSystemMVC
-            sudo chmod -R 775 /home/ec2-user/MemberSystemMVC 
-      
-      - name: 📦 上傳 public 靜態資源資料夾到 EC2
+            sudo chmod -R 775 /home/ec2-user/MemberSystemMVC
+
+      - name: 📦 上傳 public
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.AWS_EC2_HOST }}
@@ -53,9 +50,8 @@ jobs:
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           source: "public"
           target: "/home/ec2-user/MemberSystemMVC"
-            
 
-      - name: 📝 透過 GitHub Secrets 產生 .env 檔案
+      - name: 🖍️ 用 secrets 產生 .env
         run: |
           mkdir -p MemberSystemMVC
           cat <<EOF > .env
@@ -72,8 +68,7 @@ jobs:
           CLIENT_SECRET=${{ secrets.CLIENT_SECRET }}
           EOF
 
-
-      - name: 📤 上傳 .env 到 EC2
+      - name: 📄 上傳 .env
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.AWS_EC2_HOST }}
@@ -82,8 +77,7 @@ jobs:
           source: ".env"
           target: "/home/ec2-user/MemberSystemMVC"
 
-          
-      - name: 📄 上傳 Nginx 設定檔到 EC2
+      - name: 📃 上傳 nginx config
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.AWS_EC2_HOST }}
@@ -92,9 +86,7 @@ jobs:
           source: "nginx/default.conf"
           target: "/home/ec2-user/MemberSystemMVC/"
 
-      
-      
-      - name: 📁 備份 .env 檔案到副本資料夾
+      - name: 📁 備份 .env
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.AWS_EC2_HOST }}
@@ -106,8 +98,7 @@ jobs:
             sudo chown -R ec2-user:www-data /home/ec2-user/MemberSystemMVC_backup.env
             sudo chmod -R 775 /home/ec2-user/MemberSystemMVC_backup.env
 
-
-      - name: 🌐 部署 Docker 圖像至 EC2
+      - name: 🌐 部署 Docker image
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.AWS_EC2_HOST }}
@@ -117,8 +108,6 @@ jobs:
             sudo systemctl start docker
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-            # ✅ 先強制拉當次的時間戳 TAG image，保證就是這次 push 的
-            docker image rm -f ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:${{ env.TAG }} || true
             docker pull ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:${{ env.TAG }}
 
             docker stop my-mvc-php-app nginx_server || true
@@ -126,17 +115,13 @@ jobs:
 
             docker network inspect my-net >/dev/null 2>&1 || docker network create my-net
 
-            mkdir -p /home/ec2-user/MemberSystemMVC/public/uploads/avatars
-            mkdir -p /home/ec2-user/MemberSystemMVC/logs
-            sudo chown -R ec2-user:www-data /home/ec2-user/MemberSystemMVC/public/uploads
-            sudo chmod -R 775 /home/ec2-user/MemberSystemMVC/public/uploads
-            sudo chown -R ec2-user:www-data /home/ec2-user/MemberSystemMVC/logs
-            sudo chmod -R 775 /home/ec2-user/MemberSystemMVC/logs
-
             docker run -d --name my-mvc-php-app \
               --network my-net \
               -v /home/ec2-user/MemberSystemMVC/.env:/var/www/html/.env \
               ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:${{ env.TAG }}
+
+            echo "⏳ 等待 my-mvc-php-app 完全啟動..."
+            sleep 5
 
             docker run -d --name nginx_server \
               --network my-net \
@@ -146,9 +131,10 @@ jobs:
               -v /home/ec2-user/certbot/www:/var/www/certbot \
               -v /home/ec2-user/certbot/conf:/etc/letsencrypt \
               nginx
-      
 
-      - name: 📅 設定 SSL 自動續期排程 (crontab)
+            docker exec nginx_server nginx -t || echo "⚠️ Nginx 配置錯誤"
+
+      - name: 📅 設定 SSL 繼續 cron
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.AWS_EC2_HOST }}
