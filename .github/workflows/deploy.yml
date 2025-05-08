@@ -43,7 +43,7 @@ jobs:
       - name: 📝 透過 GitHub Secrets 產生 .env 檔案
         run: |
           mkdir -p MemberSystemMVC
-          cat <<EOF > MemberSystemMVC/.env
+          cat <<EOF > .env
           DB_HOST=${{ secrets.DB_HOST }}
           DB_PORT=${{ secrets.DB_PORT }}
           DB_DATABASE=${{ secrets.DB_DATABASE }}
@@ -64,7 +64,7 @@ jobs:
           host: ${{ secrets.AWS_EC2_HOST }}
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-          source: "MemberSystemMVC/.env"
+          source: ".env"
           target: "/home/ec2-user/MemberSystemMVC"
 
           
