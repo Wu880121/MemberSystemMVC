@@ -59,26 +59,22 @@ jobs:
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           source: "public"
           target: "/home/ec2-user/MemberSystemMVC"
-      
-      - name: 📁 建立 uploads/avatars 並給 www-data 權限
+          
+      - name: 🔐 設定 uploads 權限
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.AWS_EC2_HOST }}
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           script: |
-            echo "🔧 建立 uploads/avatars 資料夾..."
-            mkdir -p /home/ec2-user/MemberSystemMVC/public/uploads/avatars
-
             echo "🔑 設定擁有者為 www-data..."
-            sudo chown -R www-data:www-data /home/ec2-user/MemberSystemMVC/public/uploads
+            sudo chown -R www-data:www-data /home/ec2-user/MemberSystemMVC/public/uploads/avatars
 
             echo "🔒 設定權限為 755..."
-            sudo chmod -R 755 /home/ec2-user/MemberSystemMVC/public/uploads
+            sudo chmod -R 755 /home/ec2-user/MemberSystemMVC/public/uploads/avatars
 
-            echo "✅ uploads/avatars 建立完成並設定完畢。"
-  
-  
+            echo "✅ uploads 權限設定完畢。"
+      
 
       - name: 🖍️ 用 secrets 產生 .env
         run: |
@@ -150,9 +146,8 @@ jobs:
             echo "🐘 啟動 PHP 容器..."
             docker run -d --name my-mvc-php-app \
               --network my-net \
-              -v /home/ec2-user/MemberSystemMVC:/var/www/html \
-              #  -v /home/ec2-user/MemberSystemMVC/.env:/var/www/html/.env \
-              #  -v /home/ec2-user/MemberSystemMVC/public/uploads/avatars:/var/www/html/public/uploads/avatars \
+              -v /home/ec2-user/MemberSystemMVC/.env:/var/www/html/.env \
+              -v /home/ec2-user/MemberSystemMVC/public/uploads/avatars:/var/www/html/public/uploads/avatars \
               ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
 
             echo "⏳ 等待 PHP 容器完全啟動..."
