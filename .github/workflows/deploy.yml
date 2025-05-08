@@ -112,7 +112,7 @@ jobs:
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
             echo "📥 拉取 image: ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:$TAG"
-            docker pull ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:$TAG
+            docker pull ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
 
             docker stop my-mvc-php-app nginx_server || true
             docker rm my-mvc-php-app nginx_server || true
@@ -123,7 +123,7 @@ jobs:
             docker run -d --name my-mvc-php-app \
               --network my-net \
               -v /home/ec2-user/MemberSystemMVC/.env:/var/www/html/.env \
-              ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:$TAG
+              ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
 
             echo "⏳ 等待 my-mvc-php-app 完全啟動..."
             sleep 5
