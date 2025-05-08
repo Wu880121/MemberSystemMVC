@@ -25,10 +25,19 @@ jobs:
         run: |
           docker image rm -f ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest || true
           docker build -t ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:${{ env.TAG }} .
+    
+          # 標記 latest 在時間戳版本成功後進行
           docker tag ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:${{ env.TAG }} ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
+
+          # 先推時間戳備份
           docker push ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:${{ env.TAG }}
+    
+          # 再推 latest 確保是最新
           docker push ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
+
+          # 清理本地鏡像
           docker image prune -f
+
 
       - name: 📂 建立目錄
         uses: appleboy/ssh-action@master
@@ -105,19 +114,15 @@ jobs:
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           script: |
-            IMAGE=${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
-            echo "🚀 即將部署的 image: $IMAGE"
-
             sudo systemctl start docker
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-
-   
-            echo "📥 重新拉取 image: $IMAGE"
-            docker pull $IMAGE
+ 
+            echo "📥 重新拉取 image: latest"
+            docker pull ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
 
             echo "🧹 停止並刪除現有容器（若存在）..."
             docker stop my-mvc-php-app nginx_server || true
-            docker rm my-mvc-php-app nginx_server || true
+           docker rm my-mvc-php-app nginx_server || true
 
             echo "🌐 建立 Docker 網路（如果尚未建立）"
             docker network inspect my-net >/dev/null 2>&1 || docker network create my-net
@@ -126,7 +131,7 @@ jobs:
             docker run -d --name my-mvc-php-app \
               --network my-net \
               -v /home/ec2-user/MemberSystemMVC/.env:/var/www/html/.env \
-              $IMAGE
+              ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
 
             echo "⏳ 等待 PHP 容器完全啟動..."
             sleep 5
@@ -143,6 +148,7 @@ jobs:
 
             echo "🔍 驗證 Nginx 設定檔..."
             docker exec nginx_server nginx -t || echo "⚠️ Nginx 配置錯誤"
+     
 
      
 
