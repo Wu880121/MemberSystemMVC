@@ -23,22 +23,14 @@ jobs:
 
       - name: 🚀 建立並推送含時間的 Docker 圖像 tag
         run: |
-          # 🔄 如果已有 latest tag，先移除，避免 tag 混亂
+          # ✅ 應該在這裡清除 local 的舊 latest，避免誤 tag 推錯
           docker image rm -f ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest || true
-      
-          # 🛠 Build 新的 image（含 TAG）
+
           docker build -t ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:${{ env.TAG }} .
-      
-          # 🏷️ 標記為 latest
           docker tag ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:${{ env.TAG }} ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
-      
-          # ⬆️ 推送到 DockerHub
           docker push ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:${{ env.TAG }}
           docker push ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
-      
-          # 🧹 清除未被使用的中間 image，釋放空間
           docker image prune -f
-
 
           
       - name: 🗂️ 建立專案與 public 資料夾（如不存在）
@@ -124,7 +116,7 @@ jobs:
           script: |
             sudo systemctl start docker
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-            docker pull ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:${{ env.TAG }}
+            docker pull ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
 
             docker stop my-mvc-php-app nginx_server || true
             docker rm my-mvc-php-app nginx_server || true
@@ -141,7 +133,7 @@ jobs:
             docker run -d --name my-mvc-php-app \
               --network my-net \
               -v /home/ec2-user/MemberSystemMVC/.env:/var/www/html/.env \
-              ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:${{ env.TAG }}
+              ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
 
 
 
