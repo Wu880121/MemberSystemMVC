@@ -86,7 +86,7 @@ jobs:
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           script: |
-            mkdir -p /home/ec2-user/MemberSystemMVC.env_backup.env
+            mkdir -p /home/ec2-user/MemberSystemMVC_backup.env
             cp /home/ec2-user/MemberSystemMVC/.env /home/ec2-user/MemberSystemMVC_backup.env/.env.bak
             sudo chown -R ec2-user:www-data /home/ec2-user/MemberSystemMVC_backup.env
             sudo chmod -R 775 /home/ec2-user/MemberSystemMVC_backup.env
