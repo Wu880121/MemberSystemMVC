@@ -121,10 +121,11 @@ jobs:
             sudo chmod -R 775 /home/ec2-user/MemberSystemMVC/logs
 
             docker run -d --name my-mvc-php-app \
-              --network my-net \
-              --add-host=host.docker.internal:172.17.0.1 \
+              --network host \
+              --env-file /home/ec2-user/MemberSystemMVC/.env \
               -v /home/ec2-user/MemberSystemMVC/.env:/var/www/html/.env \
               ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:${{ env.TAG }}
+
 
 
             docker run -d --name nginx_server \
