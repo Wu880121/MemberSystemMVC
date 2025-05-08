@@ -18,7 +18,7 @@ class MailerService
         $this->mailer->Host       = 'smtp.gmail.com';
         $this->mailer->SMTPAuth   = true;
         $this->mailer->Username   = 'kocoimur0003@gmail.com';      // 替換
-        $this->mailer->Password   = getenv('PHP_MAILER');        // Gmail 應用程式密碼
+        $this->mailer->Password   = $_ENV['PHP_MAILER'];        // Gmail 應用程式密碼
         $this->mailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $this->mailer->Port       = 587;
 		    // 重點在這行！設定郵件編碼為 UTF-8

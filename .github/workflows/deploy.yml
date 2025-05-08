@@ -168,3 +168,14 @@ jobs:
             chmod +x /home/ec2-user/certbot/renew_cert.sh
 
             (crontab -l 2>/dev/null; echo "0 3 * * 0 /home/ec2-user/certbot/renew_cert.sh >> /home/ec2-user/certbot/renew.log 2>&1") | crontab -
+
+
+      - name: 🧹 清理 EC2 上的無用 Docker image
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AWS_EC2_HOST }}
+          username: ${{ secrets.AWS_EC2_USER }}
+          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+          script: |
+            echo "🧼 刪除 EC2 上所有 dangling image（沒有 tag 的 image）..."
+            docker image prune -f
