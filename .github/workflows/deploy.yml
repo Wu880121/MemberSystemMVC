@@ -160,16 +160,16 @@ jobs:
               -v /home/ec2-user/certbot/conf:/etc/letsencrypt \
               nginx
               
-       - name: 🛠️ 修正 uploads 權限
-         uses: appleboy/ssh-action@master
-         with:
-           host: ${{ secrets.AWS_EC2_HOST }}
-           username: ${{ secrets.AWS_EC2_USER }}
-           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-           script: |
-             echo "🔧 設定 public/uploads 權限給 www-data"
-             sudo chown -R www-data:www-data /home/ec2-user/MemberSystemMVC/public/uploads
-             sudo chmod -R 755 /home/ec2-user/MemberSystemMVC/public/uploads
+      - name: 🛠️ 修正 uploads 權限
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AWS_EC2_HOST }}
+          username: ${{ secrets.AWS_EC2_USER }}
+          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+          script: |
+            echo "🔧 設定 public/uploads 權限給 www-data"
+            sudo chown -R www-data:www-data /home/ec2-user/MemberSystemMVC/public/uploads
+            sudo chmod -R 755 /home/ec2-user/MemberSystemMVC/public/uploads
 
 
             echo "🔍 驗證 Nginx 設定檔..."
