@@ -86,16 +86,6 @@ jobs:
             sudo chmod -R 775 /home/ec2-user/MemberSystemMVC/public
             echo "✅ 權限設定完成"
 
-          
-      - name: 🔐 設定 uploads 權限為 775
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.AWS_EC2_HOST }}
-          username: ${{ secrets.AWS_EC2_USER }}
-          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-          script: |
-            echo "📂 設定 uploads 權限為 775"
-            sudo chmod -R 775 /home/ec2-user/MemberSystemMVC/public/uploads
       
 
       - name: 🖍️ 用 secrets 產生 .env
