@@ -13,9 +13,31 @@ jobs:
       - name: ✅ Checkout Code
         uses: actions/checkout@v3
         
-      - name: ⏰ 設定 Docker 圖像 tag 為当前日期和時間
-        id: date
-        run: echo "TAG=$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_ENV
+      - name: ⏰ 設定 Docker 圖像 tag（每日自動遞增 V 編號）
+        id: tag
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AWS_EC2_HOST }}
+          username: ${{ secrets.AWS_EC2_USER }}
+          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+          script: |
+            TAG_DATE=$(date +'%Y%m%d')
+            COUNTER_FILE="/home/ec2-user/.docker_tag_counter"
+
+            if [ -f "$COUNTER_FILE" ]; then
+              LAST_DATE=$(cut -d':' -f1 "$COUNTER_FILE")
+              LAST_COUNT=$(cut -d':' -f2 "$COUNTER_FILE")
+              if [ "$LAST_DATE" == "$TAG_DATE" ]; then
+                TAG_NUM=$((LAST_COUNT + 1))
+              else
+                TAG_NUM=1
+              fi
+            else
+              TAG_NUM=1
+            fi
+
+            echo "$TAG_DATE:$TAG_NUM" > "$COUNTER_FILE"
+            echo "TAG=${TAG_DATE}_V${TAG_NUM}" >> $GITHUB_ENV
 
       - name: 🔐 Docker 登入
         run: |
@@ -55,7 +77,6 @@ jobs:
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           script: |
-            mkdir -p /home/ec2-user/MemberSystemMVC/public/uploads/avatars
             mkdir -p /home/ec2-user/MemberSystemMVC/nginx
             sudo chown -R ec2-user:www-data /home/ec2-user/MemberSystemMVC
             sudo chmod -R 775 /home/ec2-user/MemberSystemMVC
@@ -163,28 +184,6 @@ jobs:
             echo "⏳ 等待 PHP 容器完全啟動..."
             sleep 5
             
-      - name: ⚙️ 修正 PHP 上傳暫存資料夾 + 權限修正
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.AWS_EC2_HOST }}
-          username: ${{ secrets.AWS_EC2_USER }}
-          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-          script: |
-            docker exec my-mvc-php-app bash -c "\
-            echo -e 'upload_tmp_dir=/tmp\nupload_max_filesize=10M\npost_max_size=20M' > /usr/local/etc/php/conf.d/uploads.ini && \
-            kill -USR2 1"
-
-            echo "🛠 修正 uploads 權限 - 容器內"
-            docker exec my-mvc-php-app chown -R www-data:www-data /var/www/html/public/uploads/avatars
-            docker exec my-mvc-php-app chmod -R 775 /var/www/html/public/uploads/avatars
-
-            echo "🛠 修正 uploads 權限 - EC2 主機"
-            sudo chown -R ec2-user:ec2-user /home/ec2-user/MemberSystemMVC/public/uploads/avatars
-            sudo chmod -R 775 /home/ec2-user/MemberSystemMVC/public/uploads/avatars
-
-            echo "✅ uploads 權限修正完成"
-
-
 
             echo "🌐 啟動 Nginx 容器..."
             docker run -d --name nginx_server \
@@ -231,3 +230,24 @@ jobs:
           script: |
             echo "🧼 刪除 EC2 上所有 dangling image（沒有 tag 的 image）..."
             docker image prune -f
+            
+      - name: ⚙️ 修正 PHP 上傳暫存資料夾 + 權限修正
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AWS_EC2_HOST }}
+          username: ${{ secrets.AWS_EC2_USER }}
+          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+          script: |
+            docker exec my-mvc-php-app bash -c "\
+            echo -e 'upload_tmp_dir=/tmp\nupload_max_filesize=10M\npost_max_size=20M' > /usr/local/etc/php/conf.d/uploads.ini && \
+            kill -USR2 1"
+
+            echo "🛠 修正 uploads 權限 - 容器內"
+            docker exec my-mvc-php-app chown -R www-data:www-data /var/www/html/public/uploads/avatars
+            docker exec my-mvc-php-app chmod -R 775 /var/www/html/public/uploads/avatars
+
+            echo "🛠 修正 uploads 權限 - EC2 主機"
+            sudo chown -R ec2-user:ec2-user /home/ec2-user/MemberSystemMVC/public/uploads/avatars
+            sudo chmod -R 775 /home/ec2-user/MemberSystemMVC/public/uploads/avatars
+
+            echo "✅ uploads 權限修正完成"
