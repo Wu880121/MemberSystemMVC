@@ -38,6 +38,15 @@ jobs:
           # 清理本地鏡像
           docker image prune -f
 
+      - name: 📦 上傳指定 public 子目錄和檔案
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.AWS_EC2_HOST }}
+          username: ${{ secrets.AWS_EC2_USER }}
+          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+          source: "public/index.php,public/assets"
+          target: "/home/ec2-user/MemberSystemMVC/public/"
+
 
       - name: 📂 建立目錄
         uses: appleboy/ssh-action@master
@@ -50,15 +59,6 @@ jobs:
             mkdir -p /home/ec2-user/MemberSystemMVC/nginx
             sudo chown -R ec2-user:www-data /home/ec2-user/MemberSystemMVC
             sudo chmod -R 775 /home/ec2-user/MemberSystemMVC
-
-      - name: 📦 上傳指定 public 子目錄和檔案
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.AWS_EC2_HOST }}
-          username: ${{ secrets.AWS_EC2_USER }}
-          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-          source: "public/index.php,public/assets"
-          target: "/home/ec2-user/MemberSystemMVC/public/"
 
 
 
