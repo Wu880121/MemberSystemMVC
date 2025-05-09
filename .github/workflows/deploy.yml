@@ -161,7 +161,7 @@ jobs:
             echo "⏳ 等待 PHP 容器完全啟動..."
             sleep 5
             
-      - name: ⚙️ 修正 PHP 上傳暫存資料夾
+      - name: ⚙️ 修正 PHP 上傳暫存資料夾 + 權限修正
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.AWS_EC2_HOST }}
@@ -171,6 +171,17 @@ jobs:
             docker exec my-mvc-php-app bash -c "\
             echo -e 'upload_tmp_dir=/tmp\nupload_max_filesize=10M\npost_max_size=20M' > /usr/local/etc/php/conf.d/uploads.ini && \
             kill -USR2 1"
+
+            echo "🛠 修正 uploads 權限 - 容器內"
+            docker exec my-mvc-php-app chown -R www-data:www-data /var/www/html/public/uploads
+            docker exec my-mvc-php-app chmod -R 775 /var/www/html/public/uploads
+
+            echo "🛠 修正 uploads 權限 - EC2 主機"
+            sudo chown -R ec2-user:ec2-user /home/ec2-user/MemberSystemMVC/public/uploads
+            sudo chmod -R 775 /home/ec2-user/MemberSystemMVC/public/uploads
+
+            echo "✅ uploads 權限修正完成"
+
 
 
             echo "🌐 啟動 Nginx 容器..."
