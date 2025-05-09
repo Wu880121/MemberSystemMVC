@@ -45,7 +45,7 @@ jobs:
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           source: "public/index.php,public/assets"
-          target: "/home/ec2-user/MemberSystemMVC/public/"
+          target: "/home/ec2-user/MemberSystemMVC/"
 
 
       - name: 📂 建立目錄
