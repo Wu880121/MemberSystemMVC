@@ -1,9 +1,9 @@
 <?php
 
-require_once '../config/database.php';
+//require_once '../config/database.php';
 
-$db = new Database();
+//$db = new Database();
 
-$conn = $db->connect();
+//$conn = $db->connect();
 
-echo $conn ? " 資料庫連線成功!" : "資料庫連線失敗";
+//echo $conn ? " 資料庫連線成功!" : "資料庫連線失敗";
