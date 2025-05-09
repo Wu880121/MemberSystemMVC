@@ -46,12 +46,11 @@ jobs:
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           script: |
-            mkdir -p /home/ec2-user/MemberSystemMVC
+            mkdir -p /home/ec2-user/MemberSystemMVC/public
             mkdir -p /home/ec2-user/MemberSystemMVC/nginx
             sudo chown -R ec2-user:www-data /home/ec2-user/MemberSystemMVC
             sudo chmod -R 775 /home/ec2-user/MemberSystemMVC
 
-      
       - name: 🖼️ 上傳 avatars 圖片（保留現有檔案）
         uses: appleboy/ssh-action@master
         with:
@@ -60,7 +59,6 @@ jobs:
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           script: |
             rsync -avz public/uploads/avatars/ /home/ec2-user/MemberSystemMVC/public/uploads/avatars/
-
 
 
       - name: 🔐 設定 public 權限為 ec2-user:775
