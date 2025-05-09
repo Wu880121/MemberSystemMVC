@@ -60,9 +60,6 @@ jobs:
           source: |
             public/index.php
             public/assets
-            public/assets/css
-            public/assets/js
-            public/assets/images
           target: "/home/ec2-user/MemberSystemMVC/public"
 
       
