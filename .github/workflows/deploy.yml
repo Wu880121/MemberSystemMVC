@@ -51,14 +51,17 @@ jobs:
             sudo chown -R ec2-user:www-data /home/ec2-user/MemberSystemMVC
             sudo chmod -R 775 /home/ec2-user/MemberSystemMVC
 
-      - name: 📦 上傳 public
-        uses: appleboy/scp-action@master
+      
+      - name: 🖼️ 上傳 avatars 圖片（保留現有檔案）
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.AWS_EC2_HOST }}
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-          source: "public"
-          target: "/home/ec2-user/MemberSystemMVC"
+          script: |
+            rsync -avz public/uploads/avatars/ /home/ec2-user/MemberSystemMVC/public/uploads/avatars/
+
+
 
       - name: 🔐 設定 public 權限為 ec2-user:775
         uses: appleboy/ssh-action@master
@@ -173,12 +176,12 @@ jobs:
             kill -USR2 1"
 
             echo "🛠 修正 uploads 權限 - 容器內"
-            docker exec my-mvc-php-app chown -R www-data:www-data /var/www/html/public/uploads
-            docker exec my-mvc-php-app chmod -R 775 /var/www/html/public/uploads
+            docker exec my-mvc-php-app chown -R www-data:www-data /var/www/html/public/uploads/avatars
+            docker exec my-mvc-php-app chmod -R 775 /var/www/html/public/uploads/avatars
 
             echo "🛠 修正 uploads 權限 - EC2 主機"
-            sudo chown -R ec2-user:ec2-user /home/ec2-user/MemberSystemMVC/public/uploads
-            sudo chmod -R 775 /home/ec2-user/MemberSystemMVC/public/uploads
+            sudo chown -R ec2-user:ec2-user /home/ec2-user/MemberSystemMVC/public/uploads/avatars
+            sudo chmod -R 775 /home/ec2-user/MemberSystemMVC/public/uploads/avatars
 
             echo "✅ uploads 權限修正完成"
 
