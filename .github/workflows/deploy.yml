@@ -223,12 +223,26 @@ jobs:
             echo -e 'upload_tmp_dir=/tmp\nupload_max_filesize=10M\npost_max_size=20M' > /usr/local/etc/php/conf.d/uploads.ini && \
             kill -USR2 1"
 
-            echo "🛠 修正 uploads 權限 - 容器內"
-            docker exec my-mvc-php-app chown -R www-data:www-data /var/www/html/public/uploads/avatars
-            docker exec my-mvc-php-app chmod -R 775 /var/www/html/public/uploads/avatars
+      - name: ⚙️ 修正 PHP 上傳暫存資料夾 + 權限修正
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AWS_EC2_HOST }}
+          username: ${{ secrets.AWS_EC2_USER }}
+          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+          script: |
+            echo "⚙️ 設定 PHP 上傳暫存與 uploads 權限..."
 
-            echo "🛠 修正 uploads 權限 - EC2 主機"
+            # 在容器內進行設定
+            docker exec my-mvc-php-app bash -c '
+              echo -e "upload_tmp_dir=/tmp\nupload_max_filesize=10M\npost_max_size=20M" > /usr/local/etc/php/conf.d/uploads.ini
+              chown -R www-data:www-data /var/www/html/public/uploads/avatars
+              chmod -R 775 /var/www/html/public/uploads/avatars
+              kill -USR2 1
+            '
+
+            # 在 EC2 主機同步調整 uploads 權限
             sudo chown -R ec2-user:ec2-user /home/ec2-user/MemberSystemMVC/public/uploads/avatars
             sudo chmod -R 775 /home/ec2-user/MemberSystemMVC/public/uploads/avatars
 
-            echo "✅ uploads 權限修正完成"
+            echo "✅ uploads 權限與暫存設定完成"
+
