@@ -233,13 +233,13 @@ jobs:
             echo "🛠 修正 uploads 權限 - 容器內"
             
             docker exec my-mvc-php-app bash -c "
-              chown -R www-data:www-data /var/www/html/public/uploads/avatars && \
-              chmod -R 775 /var/www/html/public/uploads/avatars
+              chown -R www-data:www-data /var/www/html/public/uploads && \
+              chmod -R 775 /var/www/html/public/uploads
             "
 
             echo "🛠 修正 uploads 權限 - EC2 主機"
-            sudo chown -R ec2-user:ec2-user /home/ec2-user/MemberSystemMVC/public/uploads/avatars
-            sudo chmod -R 775 /home/ec2-user/MemberSystemMVC/public/uploads/avatars
+            sudo chown -R ec2-user:ec2-user /home/ec2-user/MemberSystemMVC/public/uploads
+            sudo chmod -R 775 /home/ec2-user/MemberSystemMVC/public/uploads
 
             echo "✅ 權限修正完成"
 
