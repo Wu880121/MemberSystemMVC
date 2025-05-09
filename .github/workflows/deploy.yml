@@ -51,26 +51,17 @@ jobs:
             sudo chown -R ec2-user:www-data /home/ec2-user/MemberSystemMVC
             sudo chmod -R 775 /home/ec2-user/MemberSystemMVC
 
-      - name: 📦 上傳 public（排除 uploads 和 avatars）
-        uses: appleboy/ssh-action@master
+      - name: 📦 上傳指定 public 子目錄和檔案
+        uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.AWS_EC2_HOST }}
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-          script: |
-            echo "📁 使用 rsync 傳送 public（排除 uploads/ 和 avatars/）..."
+          source: |
+            public/assets
+            public/index.php
+          target: "/home/ec2-user/MemberSystemMVC"
 
-            # 確保目標目錄存在
-            mkdir -p /home/ec2-user/MemberSystemMVC/public/uploads/avatars
-
-            # 傳送 public 除了 uploads 和 avatars
-            rsync -avz --ignore-existing \
-              --exclude='uploads/' \
-              --exclude='uploads/avatars/' \
-              /home/runner/work/${{ github.event.repository.name }}/${{ github.event.repository.name }}/public/ \
-              /home/ec2-user/MemberSystemMVC/public/
-
-            echo "✅ public 上傳完成（排除 uploads 和 avatars）"
       
       
 
