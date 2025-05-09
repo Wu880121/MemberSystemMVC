@@ -13,31 +13,22 @@ jobs:
       - name: ✅ Checkout Code
         uses: actions/checkout@v3
         
-      - name: ⏰ 設定 Docker 圖像 tag（每日自動遞增 V 編號）
-        id: tag
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.AWS_EC2_HOST }}
-          username: ${{ secrets.AWS_EC2_USER }}
-          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-          script: |
-            TAG_DATE=$(date +'%Y%m%d')
-            COUNTER_FILE="/home/ec2-user/.docker_tag_counter"
+      - name: ⏰ 設定 Docker 圖像 tag 為日期 + 自動遞增版本
+        id: date
+        run: |
+          TODAY=$(date +'%Y%m%d')
+          COUNTER_FILE="/tmp/docker_tag_counter_$TODAY"
+    
+          if [[ -f $COUNTER_FILE ]]; then
+            VERSION=$(($(cat $COUNTER_FILE) + 1))
+          else
+            VERSION=1
+          fi
+    
+          echo "$VERSION" > $COUNTER_FILE
+          TAG="${TODAY}_V${VERSION}"
+          echo "TAG=$TAG" >> $GITHUB_ENV
 
-            if [ -f "$COUNTER_FILE" ]; then
-              LAST_DATE=$(cut -d':' -f1 "$COUNTER_FILE")
-              LAST_COUNT=$(cut -d':' -f2 "$COUNTER_FILE")
-              if [ "$LAST_DATE" == "$TAG_DATE" ]; then
-                TAG_NUM=$((LAST_COUNT + 1))
-              else
-                TAG_NUM=1
-              fi
-            else
-              TAG_NUM=1
-            fi
-
-            echo "$TAG_DATE:$TAG_NUM" > "$COUNTER_FILE"
-            echo "TAG=${TAG_DATE}_V${TAG_NUM}" >> $GITHUB_ENV
 
       - name: 🔐 Docker 登入
         run: |
