@@ -48,6 +48,14 @@ jobs:
           docker push ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:${{ env.TAG }}
           docker push ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
           docker image prune -f
+          
+      - name: 🔖 自動打 Git Tag 並推送
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git tag ${{ env.TAG }}
+          git push origin ${{ env.TAG }}
+      
 
       
       - name: 🔐 Docker 登入
