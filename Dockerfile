@@ -4,6 +4,10 @@ FROM php:8.1-fpm
 # 安裝 PDO MySQL extension
 RUN docker-php-ext-install pdo pdo_mysql
 
+# 建立 uploads 目錄並設置權限
+RUN mkdir -p /var/www/html/public/uploads && \
+    chown -R www-data:www-data /var/www/html/public/uploads
+
 # 設定工作目錄
 WORKDIR /var/www/html
 
