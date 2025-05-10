@@ -13,22 +13,26 @@ jobs:
       - name: ✅ Checkout Code
         uses: actions/checkout@v3
         
-      - name: ⏰ 設定 Docker 圖像 tag 為日期 + 自動遞增版本
-        id: date
+      - name: ⏰ 設定 Docker 圖像 tag 為日期 + 選項遞增版本
+        id: docker_tag
         run: |
-          TODAY=$(date +'%Y%m%d')
-          COUNTER_FILE="/tmp/docker_tag_counter_$TODAY"
-    
-          if [[ -f $COUNTER_FILE ]]; then
-            VERSION=$(($(cat $COUNTER_FILE) + 1))
-          else
-            VERSION=1
-          fi
-    
-          echo "$VERSION" > $COUNTER_FILE
-          TAG="${TODAY}_V${VERSION}"
-          echo "TAG=$TAG" >> $GITHUB_ENV
+          git fetch --tags  # 確保取得所有 tag
 
+          TODAY=$(date +'%Y%m%d')
+          echo "目前日期：$TODAY"
+
+          TAGS=$(git tag | grep "${TODAY}_V" || true)
+
+          if [[ -z "$TAGS" ]]; then
+            VERSION=1
+          else
+            VERSION=$(echo "$TAGS" | sed -E "s/${TODAY}_V([0-9]+)/\1/" | sort -nr | head -n 1)
+            VERSION=$((VERSION + 1))
+          fi
+
+          TAG="${TODAY}_V${VERSION}"
+          echo "⭐ 自動產生 TAG：$TAG"
+          echo "TAG=$TAG" >> $GITHUB_ENV
 
       - name: 🔐 Docker 登入
         run: |
@@ -38,17 +42,9 @@ jobs:
         run: |
           docker image rm -f ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest || true
           docker build -t ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:${{ env.TAG }} .
-    
-          # 標記 latest 在時間戳版本成功後進行
           docker tag ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:${{ env.TAG }} ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
-
-          # 先推時間戳備份
           docker push ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:${{ env.TAG }}
-    
-          # 再推 latest 確保是最新
           docker push ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
-
-          # 清理本地鏡像
           docker image prune -f
 
       - name: 📦 上傳指定 public 子目錄和檔案
