@@ -12,34 +12,26 @@ jobs:
     steps:
       - name: ✅ Checkout Code
         uses: actions/checkout@v3
-        
+
       - name: ⏰ 設定 Docker 圖像 tag 為日期 + 選項遞增版本
         id: docker_tag
         run: |
-          git fetch --tags  # 確保取得所有 tag
-
+          git fetch --tags
           TODAY=$(date +'%Y%m%d')
-          echo "目前日期：$TODAY"
-
           TAGS=$(git tag | grep "${TODAY}_V" || true)
-
           if [[ -z "$TAGS" ]]; then
             VERSION=1
           else
             VERSION=$(echo "$TAGS" | sed -E "s/${TODAY}_V([0-9]+)/\1/" | sort -nr | head -n 1)
             VERSION=$((VERSION + 1))
           fi
-
           TAG="${TODAY}_V${VERSION}"
-          echo "⭐ 自動產生 TAG：$TAG"
           echo "TAG=$TAG" >> $GITHUB_ENV
 
-      
       - name: 🔐 Docker 登入
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      
       - name: 🚀 建立並推送 Docker 圖像
         run: |
           docker image rm -f ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest || true
@@ -48,43 +40,18 @@ jobs:
           docker push ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:${{ env.TAG }}
           docker push ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
           docker image prune -f
-          
+
       - name: 🔖 打 Git tag 並推送
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-
-          # 使用 token 當作認證來源
           git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git
-
           git tag ${{ env.TAG }}
           git push origin ${{ env.TAG }}
 
-      
-      - name: 🔐 Docker 登入
-        run: |
-          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-
-      - name: 🚀 建立並推送 Docker 圖像
-        run: |
-          docker image rm -f ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest || true
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:${{ env.TAG }} .
-    
-          # 標記 latest 在時間戳版本成功後進行
-          docker tag ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:${{ env.TAG }} ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
-
-          # 先推時間戳備份
-          docker push ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:${{ env.TAG }}
-    
-          # 再推 latest 確保是最新
-          docker push ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
-
-          # 清理本地鏡像
-          docker image prune -f
-
-      - name: 📦 上傳指定 public 子目錄和檔案
+      - name: 📆 上傳 public 目錄
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.AWS_EC2_HOST }}
@@ -92,7 +59,6 @@ jobs:
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           source: "public/index.php,public/assets"
           target: "/home/ec2-user/MemberSystemMVC/"
-
 
       - name: 📂 建立目錄
         uses: appleboy/ssh-action@master
@@ -105,21 +71,15 @@ jobs:
             sudo chown -R ec2-user:www-data /home/ec2-user/MemberSystemMVC
             sudo chmod -R 775 /home/ec2-user/MemberSystemMVC
 
-
-
-      - name: 🔐 設定 public 權限為 ec2-user:775
+      - name: 🔐 設定 public 權限
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.AWS_EC2_HOST }}
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           script: |
-            echo "🔐 設定 public 權限為 ec2-user"
             sudo chown -R ec2-user:ec2-user /home/ec2-user/MemberSystemMVC/public
             sudo chmod -R 775 /home/ec2-user/MemberSystemMVC/public
-            echo "✅ 權限設定完成"
-
-      
 
       - name: 🖍️ 用 secrets 產生 .env
         run: |
@@ -177,57 +137,39 @@ jobs:
           script: |
             sudo systemctl start docker
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
- 
-            echo "📥 重新拉取 image: latest"
             docker pull ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
-
-            echo "🧹 停止並刪除現有容器（若存在）..."
             docker stop my-mvc-php-app nginx_server || true
             docker rm my-mvc-php-app nginx_server || true
-
-            echo "🌐 建立 Docker 網路（如果尚未建立）"
             docker network inspect my-net >/dev/null 2>&1 || docker network create my-net
-
-            echo "🐘 啟動 PHP 容器..."
             docker run -d --name my-mvc-php-app \
-              --network my-net \
+              --network laravel-net \
               --restart unless-stopped \
               -v /home/ec2-user/MemberSystemMVC/.env:/var/www/html/.env \
               -v /home/ec2-user/MemberSystemMVC/public/uploads/avatars:/var/www/html/public/uploads/avatars \
               ${{ secrets.DOCKER_USERNAME }}/my-mvc-php-app:latest
-
-            echo "⏳ 等待 PHP 容器完全啟動..."
             sleep 5
-            
-
-            echo "🌐 啟動 Nginx 容器..."
             docker run -d --name nginx_server \
-              --network my-net \
+              --network laravel-net \
               --restart unless-stopped \
               -p 80:80 -p 443:443 \
               -v /home/ec2-user/MemberSystemMVC/public:/var/www/html \
               -v /home/ec2-user/MemberSystemMVC/public/uploads/avatars:/var/www/html/uploads/avatars \
-              -v /home/ec2-user/MemberSystemMVC/nginx/default.conf:/etc/nginx/conf.d/default.conf \
+              -v /home/ec2-user/nginx:/etc/nginx/conf.d \
               -v /home/ec2-user/certbot/www:/var/www/certbot \
               -v /home/ec2-user/certbot/conf:/etc/letsencrypt \
               nginx
-              
-
-            echo "🔍 驗證 Nginx 設定檔..."
             docker exec nginx_server nginx -t || echo "⚠️ Nginx 配置錯誤"
 
-
-      - name: 🧹 清理 EC2 上的無用 Docker image
+      - name: 🩹 清理 EC2 上無用 Docker image
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.AWS_EC2_HOST }}
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           script: |
-            echo "🧼 刪除 EC2 上所有 dangling image（沒有 tag 的 image）..."
             docker image prune -f
-            
-      - name: ⚙️ 修正 PHP 上傳暫存資料夾 + 權限修正
+
+      - name: ⚙️ 修正 PHP 上傳暫存資料夾 + 權限
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.AWS_EC2_HOST }}
@@ -238,24 +180,16 @@ jobs:
             echo -e 'upload_tmp_dir=/tmp\nupload_max_filesize=10M\npost_max_size=20M' > /usr/local/etc/php/conf.d/uploads.ini && \
             kill -USR2 1"
 
-      - name: 🔐 修正 uploads 權限（容器 + EC2 主機）
+      - name: 🔐 修正 uploads 權限
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.AWS_EC2_HOST }}
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           script: |
-            echo "🛠 修正 uploads 權限 - EC2 主機"
             sudo chown -R ec2-user:ec2-user /home/ec2-user/MemberSystemMVC/public/uploads
             sudo chmod -R 775 /home/ec2-user/MemberSystemMVC/public/uploads
-
-            echo "🛠 修正 uploads 權限 - 容器內"
             docker exec my-mvc-php-app bash -c "
               chown -R www-data:www-data /var/www/html/public/uploads && \
-              chmod -R 775 /var/www/html/public/uploads
-            "
-
+              chmod -R 775 /var/www/html/public/uploads"
             echo "✅ 權限修正完成"
-
- 
-
