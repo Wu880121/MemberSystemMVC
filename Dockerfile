@@ -6,13 +6,11 @@ RUN docker-php-ext-install pdo pdo_mysql
 
 
 # 設定工作目錄
-WORKDIR /var/www/html
+WORKDIR /var/www/MemberSystemMVC
 
-# ✅ 清除任何 base image 中可能存在的檔案
-RUN rm -rf /var/www/html/*
 
 # 複製當前目錄下的所有檔案到容器中
-COPY . /var/www/html
+COPY . /var/www/MemberSystemMVC
 
 # 設定檔案擁有權限
 RUN chown -R www-data:www-data /var/www/html
