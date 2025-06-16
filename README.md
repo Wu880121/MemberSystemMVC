@@ -5,6 +5,12 @@
 ---
 &nbsp;
 
+## 作品:
+作品連結：https://keepgoingpiggy.com/
+
+---
+&nbsp;
+
 ## 專案功能:
 -  會員註冊 / 登入（支援 JWT / cookie）
 -   使用者角色（Admin / User）
@@ -40,11 +46,6 @@
 -  當 push 到 main 分支時，自動打包 Docker Image 並推送到 Docker Hub
 -  使用 SSH 登入 AWS EC2，拉取最新 image 並重新啟動容器
 
----
-&nbsp;
-
-## 作品:
-作品連結：https://keepgoingpiggy.com/
 
 ---
 &nbsp;
