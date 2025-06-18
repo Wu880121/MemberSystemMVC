@@ -86,7 +86,8 @@ class GooleLoginCallback {
 			
 
               // 儲存到 login_tokens 表
-             $userModel->saveLoginToken($user['id'], $token, $device, $expiresAt);
+			  $userId = (is_array($user) && isset($user['id'])) ? $user['id'] : null;
+             $userModel->saveLoginToken($userId, $token, $device, $expiresAt);
 
               // 寫入 Cookie（或回傳 JSON 給前端）
               setcookie('token', $token,   [
