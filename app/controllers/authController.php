@@ -355,7 +355,18 @@ class AuthController
             // 清空 cookie
             setcookie('token', '', time() - 3600, '/', '', true, true);
         }
-
+		
+		$token = $_SESSION['GoogleAccessToken'] ?? null;
+           if ($token) {
+               $url = 'https://accounts.google.com/o/oauth2/revoke?token=' . $token;
+               $ch = curl_init($url);
+               curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+               curl_exec($ch);
+               curl_close($ch);
+           }
+		   
+		  setcookie('PHPSESSID', '', time() - 3600, '/');
+		  
         // 清除 Session（如果你有用）
         session_destroy();
 

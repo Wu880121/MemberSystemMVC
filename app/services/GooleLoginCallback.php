@@ -71,6 +71,8 @@ $_SESSION['GoogleUser'] = [
 ];
 }
 
+$_SESSION['GoogleAccessToken'] = $access_token;
+
 // 清除 state（防止重複使用）
 unset($_SESSION['oauth2_state']);
 
