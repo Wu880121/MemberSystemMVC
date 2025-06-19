@@ -51,8 +51,8 @@ class GooleLoginCallback {
               $expiresAt = date('Y-m-d H:i:s', time() + $expiresIn);
 
               // 儲存到 login_tokens 表
-			  $userId = (is_array($user['id'])&&isset($user['id']))?$user['id']:null;
-             $userModel->saveLoginToken($userId, $token, $device, $expiresAt);
+			  
+             $userModel->saveLoginToken($user['id'], $token, $device, $expiresAt);
 
               // 寫入 Cookie（或回傳 JSON 給前端）
               setcookie('token', $token,   [
