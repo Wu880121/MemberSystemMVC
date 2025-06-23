@@ -92,7 +92,7 @@
 	
 	<form method="POST" action="index.php?route=UserProfile" enctype="multipart/form-data">
 	<label>大頭照:</label>
-   <img src="<?= htmlspecialchars(!empty($user['avatar_path']) ? '/uploads/avatars/default.png':$user['avatar_path']) ?>" alt="大頭照" width="100">
+   <img src="<?= htmlspecialchars(empty($user['avatar_path']) ? '/uploads/avatars/default.png':$user['avatar_path']) ?>" alt="大頭照" width="100">
 	<input type="file" name="avatar" accept="image/*" >
 	<button type="submit">上傳</button>
 
